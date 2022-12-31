@@ -82,9 +82,90 @@ Just register the Twig extension:
 ```php
 $twig = new \Twig\Environment();
 $twig->addExtension(new \Ocubom\Twig\Extension\SvgExtension());
+$thig->addRuntimeLoader(use Twig\RuntimeLoader\FactoryRuntimeLoader([
+    \Ocubom\Twig\Extension\SvgExtension::class => function() {
+        return new \Ocubom\Twig\Extension\SvgExtension();
+    },
+]));
+
+// You can also dynamically create a RuntimeLoader 
+$twig->addRuntimeLoader(new class() implements RuntimeLoaderInterface {
+    public function load($class)
+    {
+        if (\Ocubom\Twig\Extension\SvgExtension::class === $class) {
+            return new \Ocubom\Twig\Extension\SvgExtension();
+        }
+        
+        return null;
+    }
+});
 ```
 
-_For more examples, please refer to the [Documentation][]._
+The extension defines several filters and functions:
+
+### Filter `svg_symbols`
+
+This filter looks for embedded SVGs and converts each of them into a reference to a symbol.
+
+> **Warning**
+> 
+> The filter must be applied at the level of an HTML document.
+> 
+> If the filter is used in a fragment, an exception will be generated.
+
+```twig
+{%- apply svg_symbols -%}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+        <svg width="500" height="160">
+            <polygon fill="#006791" class="shape" points="150,75 112.5,140 37.5,140 0,75 37.5,10 112.5,10"/>
+            <rect    fill="#006791" class="shape" transform="translate(180 0)" x="10" y="10" width="130" height="130"/>
+            <circle  fill="#006791" class="shape" transform="translate(350 0)" r="65" cx="75" cy="75"/>
+        </svg>
+
+    </body>
+</html>
+{%- endapply -%}
+```
+
+> **Note**
+> 
+> The svg function can be used to embed SVG files that will be converted with this filter.
+
+### function `svg`
+
+The svg function embeds an SVG defined in an external file into the template.
+
+```twig
+{{ svg('path/to/file.svg', {option: value}) }}
+```
+
+The path is relative to the search path provided as the first argument when creating the runtime.
+
+```php
+new \Ocubom\Twig\Extension\SvgExtension(
+    new \Ocubom\Twig\Extension\Svg\Finder(
+        'first/search/path',
+        'second/search/path'
+    )
+);
+```
+
+The second argument can be used to add some attributes to the root element:
+
+```twig
+{{ svg('test', {
+    'class': 'custom svg class',
+    'title': 'This is a semantic title',
+}) }}
+```
 
 ## Roadmap
 

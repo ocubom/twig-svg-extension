@@ -1,0 +1,28 @@
+--TEST--
+svg_symbols on a document fragment throws exception
+--TEMPLATE--
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+        {%- apply svg_symbols -%}
+
+        <svg width="500" height="160">
+            <polygon fill="#006791" class="shape" points="150,75 112.5,140 37.5,140 0,75 37.5,10 112.5,10"/>
+            <rect    fill="#006791" class="shape" transform="translate(180 0)" x="10" y="10" width="130" height="130"/>
+            <circle  fill="#006791" class="shape" transform="translate(350 0)" r="65" cx="75" cy="75"/>
+        </svg>
+
+        {%- endapply -%}
+
+    </body>
+</html>
+--DATA--
+return []
+--EXCEPTION--
+Twig\Error\RuntimeError: An exception has been thrown during the rendering of a template ("Unable to parse HTML: Line 0, Col 0: No DOCTYPE specified.") in "index.twig" at line 11.

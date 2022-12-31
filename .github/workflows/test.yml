@@ -1,0 +1,174 @@
+# @see https://help.github.com/en/categories/automating-your-workflow-with-github-actions
+# @see https://github.com/shivammathur/setup-php/blob/master/examples/symfony.yml
+# @see https://about.codecov.io/blog/measuring-php-code-coverage-with-phpunit-and-github-actions/
+
+name: test
+
+on:
+    push:
+        branches: [ "main" ]
+    pull_request:
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+jobs:
+    test-suite:
+        name: Test Suite (PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }})
+        runs-on: ${{ matrix.operating-system }}
+        continue-on-error: ${{ matrix.experimental }}
+        strategy:
+            fail-fast: false
+            matrix:
+                operating-system:
+                    - ubuntu-latest
+                    - windows-latest
+                    - macos-latest
+                php-version:
+                    - '8.2'
+                    - '8.1'
+                    - '8.0'
+                    - '7.4'
+                experimental: [false]
+
+        steps:
+            -   name: Configure git to avoid issues with line endings
+                if: runner.os == 'Windows'
+                run: git config --global core.autocrlf false
+
+            -   name: Configure GNU tar on windows
+                if: ${{ runner.os == 'Windows' }}
+                shell: cmd
+                run: |
+                    echo "Adding GNU tar to PATH"
+                    echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
+
+            -   name: Checkout
+                uses: actions/checkout@v3
+
+            -   name: Install PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-version }}
+                    ini-values: date.timezone=UTC, memory_limit=-1, max_execution_time=-1
+                    tools: phpunit-bridge
+                    coverage: none
+
+            -   name: Get Composer cache directory
+                id: composer-config
+                shell: bash
+                run: |
+                    echo "CACHE_FILES_DIR=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+            -   name: Cache composer
+                id: cache-composer
+                uses: actions/cache@v3
+                with:
+                    # Use composer.json for key as composer.lock is not committed.
+                    key: ${{ runner.os }}:composer-${{ hashFiles('**/composer.json') }}
+                    path: ${{ steps.composer-config.outputs.CACHE_FILES_DIR }}
+                    restore-keys: |
+                        ${{ runner.os }}:composer-${{ hashFiles('**/composer.json') }}
+                        ${{ runner.os }}:composer-
+
+            -   name: Cache vendor directory
+                id: cache-vendor
+                uses: actions/cache@v3
+                with:
+                    # Use composer.json for key as composer.lock is not committed.
+                    key: ${{ runner.os }}:php-8.1:vendor-${{ hashFiles('**/composer.json') }}
+                    path: vendor
+
+            -   name: Install composer dependencies
+                run: composer install --ansi --no-progress --optimize-autoloader
+
+            -   name: Run test suite
+                run: simple-phpunit
+
+    code-coverage:
+        name: Code Coverage (PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }})
+        runs-on: ubuntu-latest # Code Coverage only supported on Linux
+        needs:
+            - test-suite
+        strategy:
+            fail-fast: false
+            matrix:
+                operating-system:
+                    - ubuntu-latest
+                php-version:
+                    - '8.1'
+                experimental: [false]
+
+        steps:
+            -   name: Configure git to avoid issues with line endings
+                if: runner.os == 'Windows'
+                run: git config --global core.autocrlf false
+
+            -   name: Configure GNU tar on windows
+                if: ${{ runner.os == 'Windows' }}
+                shell: cmd
+                run: |
+                    echo "Adding GNU tar to PATH"
+                    echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
+
+            -   name: Checkout
+                uses: actions/checkout@v3
+                with:
+                    # Fetch 10 commits (an arbitrary value that is more than 1 commit) or Scrutinizer will throw:
+                    #
+                    #     Failed to retrieve commit parents.
+                    #     If you use a shallow git checkout, please checkout at least a depth of one.
+                    #
+                    # @see RepositoryIntrospector at scrutinizer-ci/ocular GitHub repository
+                    fetch-depth: 10
+
+            -   name: Install PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-version }}
+                    ini-values: date.timezone=UTC, memory_limit=-1, max_execution_time=-1
+                    tools: phpunit-bridge
+                    coverage: ${{ fromJSON('["pcov", "xdebug"]')[matrix.php-version == '7.1' || (matrix.operating-system == 'macos-latest' && matrix.php-version == '8.2')] }}
+
+
+            -   name: Get Composer cache directory
+                id: composer-config
+                shell: bash
+                run: |
+                    echo "CACHE_FILES_DIR=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+            -   name: Cache composer
+                id: cache-composer
+                uses: actions/cache@v3
+                with:
+                    # Use composer.json for key as composer.lock is not committed.
+                    key: ${{ runner.os }}:composer-${{ hashFiles('**/composer.json') }}
+                    path: ${{ steps.composer-config.outputs.CACHE_FILES_DIR }}
+                    restore-keys: |
+                        ${{ runner.os }}:composer-${{ hashFiles('**/composer.json') }}
+                        ${{ runner.os }}:composer-
+
+            -   name: Cache vendor directory
+                id: cache-vendor
+                uses: actions/cache@v3
+                with:
+                    # Use composer.json for key as composer.lock is not committed.
+                    key: ${{ runner.os }}:php-8.1:vendor-${{ hashFiles('**/composer.json') }}
+                    path: vendor
+
+            -   name: Install composer dependencies
+                run: composer install --ansi --no-progress --optimize-autoloader
+
+            -   name: Collect code coverage
+                run: simple-phpunit --coverage-clover=coverage.xml
+
+            -   name: Upload coverage to Scrutinizer
+                uses: sudo-bot/action-scrutinizer@latest
+                # Do not run this step on forked versions of the main repository (example: contributor forks)
+                #if: github.repository == 'ocubom/dummy-test'
+                with:
+                    cli-args: "--format=php-clover coverage.xml --revision=${{ github.event.pull_request.head.sha || github.sha }}"

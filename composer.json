@@ -29,9 +29,17 @@
     },
     "require": {
         "php": ">=7.4",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "bentools/iterable-functions": "^2.0",
+        "masterminds/html5": "^2.0",
+        "ocubom/base-convert": "^2.0",
+        "symfony/css-selector": "^5.4|^6.0",
+        "symfony/options-resolver": "^5.4|^6.0",
         "twig/twig": "^2.7|^3.0"
     },
     "require-dev": {
+        "enshrined/svg-sanitize": "^0.15",
         "friendsofphp/php-cs-fixer": "^3.4|^3.9",
         "symfony/phpunit-bridge": "^4.4.9|^5.0.9|^6.0"
     },

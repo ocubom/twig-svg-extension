@@ -1,0 +1,20 @@
+--TEST--
+svg function throws exception if no SVG is found
+--TEMPLATE--
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+{{ svg('no-exists.svg') }}
+
+    </body>
+</html>
+--DATA--
+return []
+--EXCEPTION--
+Twig\Error\RuntimeError: An exception has been thrown during the rendering of a template ("SVG file for "no-exists.svg" could not be found on "tests/Fixtures/Resources/".") in "index.twig" at line 11.

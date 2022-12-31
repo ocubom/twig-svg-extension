@@ -12,7 +12,36 @@
 namespace Ocubom\Twig\Extension;
 
 use Twig\Extension\AbstractExtension;
+use Twig\TwigFilter;
+use Twig\TwigFunction;
 
 class SvgExtension extends AbstractExtension
 {
+    public function getFilters(): array
+    {
+        return [
+            new TwigFilter(
+                'svg_symbols',
+                [SvgRuntime::class, 'convertToSymbols'],
+                [
+                    'is_safe' => ['html'],
+                    'needs_environment' => true,
+                ]
+            ),
+        ];
+    }
+
+    public function getFunctions(): array
+    {
+        return [
+            new TwigFunction(
+                'svg',
+                [SvgRuntime::class, 'renderSvg'],
+                [
+                    'is_safe' => ['html'],
+                    // 'needs_environment' => true,
+                ]
+            ),
+        ];
+    }
 }
