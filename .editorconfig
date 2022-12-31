@@ -1,0 +1,30 @@
+;
+; https://editorconfig.org/
+;
+
+; top-most EditorConfig file
+root = true
+
+; Unix-style newlines
+[*]
+charset                  = utf-8
+end_of_line              = LF
+max_line_length          = 160
+
+[*.{php,html,twig}]
+indent_style             = space
+indent_size              = 4
+insert_final_newline     = true
+trim_trailing_whitespace = true
+
+[*.md]
+max_line_length = 80
+
+[*.{json,yaml,yml}]
+indent_style             = space
+indent_size              = 4
+insert_final_newline     = true
+trim_trailing_whitespace = true
+
+[COMMIT_EDITMSG]
+max_line_length = 0

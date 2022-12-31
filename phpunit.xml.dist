@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+        backupGlobals="false"
+        colors="true"
+        bootstrap="./vendor/autoload.php"
+>
+
+    <testsuites>
+        <testsuite name="Test suite">
+            <directory suffix="Test.php">tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <groups>
+        <exclude>
+            <group>legacy</group>
+        </exclude>
+    </groups>
+
+    <coverage>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <report>
+            <!-- clover outputFile=".phpunit-reports/clover.xml" /-->
+            <!-- cobertura outputFile=".phpunit-reports/cobertura.xml" /-->
+            <!-- crap4j outputFile=".phpunit-reports/crap4j.xml" threshold="50" /-->
+            <!-- html outputDirectory=".phpunit-reports/html-coverage" /-->
+            <!-- php outputFile=".phpunit-reports/coverage.php" /-->
+            <!-- text outputFile=".phpunit-reports/coverage.txt" showUncoveredFiles="false" showOnlySummary="true" /-->
+            <!-- xml outputDirectory=".phpunit-reports/xml-coverage" /-->
+        </report>
+    </coverage>
+
+    <!-- PHPUnit <9 coverage setup -->
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src</directory>
+        </whitelist>
+    </filter>
+
+    <listeners>
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
+    </listeners>
+
+    <php>
+        <ini name="error_reporting" value="-1" />
+        <ini name="intl.default_locale" value="en" />
+        <ini name="intl.error_level" value="0" />
+        <ini name="memory_limit" value="-1" />
+
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="max[self]=0" />
+    </php>
+
+</phpunit>

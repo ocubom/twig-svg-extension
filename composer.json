@@ -1,0 +1,48 @@
+{
+    "name": "ocubom/twig-svg-extension",
+    "type": "library",
+    "description": "A custom suite of Twig filters for SVG manipulation",
+    "keywords": [
+        "twig",
+        "twig-extension",
+        "html",
+        "compress",
+        "minify"
+    ],
+    "homepage": "https://github.com/ocubom/twig-svg-extension",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Oscar Cubo Medina",
+            "homepage": "https://ocubom.github.io"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Ocubom\\Twig\\Extension\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ocubom\\Twig\\Extension\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=7.4",
+        "twig/twig": "^2.7|^3.0"
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.4|^3.9",
+        "symfony/phpunit-bridge": "^4.4.9|^5.0.9|^6.0"
+    },
+    "scripts": {
+        "fix": "./vendor/bin/php-cs-fixer fix",
+        "test": "./vendor/bin/simple-phpunit --exclude-group=legacy"
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true
+        },
+        "sort-packages": true
+    }
+}
