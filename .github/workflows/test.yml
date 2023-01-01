@@ -80,7 +80,7 @@ jobs:
                 uses: actions/cache@v3
                 with:
                     # Use composer.json for key as composer.lock is not committed.
-                    key: ${{ runner.os }}:php-8.1:vendor-${{ hashFiles('**/composer.json') }}
+                    key: ${{ runner.os }}:php-${{ matrix.php-version }}:vendor-${{ hashFiles('**/composer.json') }}
                     path: vendor
 
             -   name: Install composer dependencies
@@ -157,7 +157,7 @@ jobs:
                 uses: actions/cache@v3
                 with:
                     # Use composer.json for key as composer.lock is not committed.
-                    key: ${{ runner.os }}:php-8.1:vendor-${{ hashFiles('**/composer.json') }}
+                    key: ${{ runner.os }}:php-${{ matrix.php-version }}:vendor-${{ hashFiles('**/composer.json') }}
                     path: vendor
 
             -   name: Install composer dependencies
