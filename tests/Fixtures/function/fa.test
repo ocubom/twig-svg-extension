@@ -1,0 +1,41 @@
+--TEST--
+fa function
+--TEMPLATE--
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+        {{ fa('house') }}
+        {{ fa('house', {'class': 'extra class'}) }}
+        {{ fa('house', {
+            'class': 'extra class',
+            'title': 'This is the icon title',
+        }) }}
+
+    </body>
+</html>
+--DATA--
+return []
+--CONFIG--
+return ['debug' => true]
+--EXPECT--
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+        <span class="fa-solid fa-house"></span>
+        <span class="fa-solid fa-house extra class"></span>
+        <span class="fa-solid fa-house extra class" title="This is the icon title"></span>
+
+    </body>
+</html>

@@ -11,6 +11,7 @@
 
 namespace Ocubom\Twig\Extension;
 
+use Ocubom\Twig\Extension\Svg\Library\FontAwesomeRuntime;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -28,6 +29,14 @@ class SvgExtension extends AbstractExtension
                     'needs_environment' => true,
                 ]
             ),
+            new TwigFilter(
+                'fontawesome',
+                [FontAwesomeRuntime::class, 'replaceIcons'],
+                [
+                    'is_safe' => ['html'],
+                    'needs_environment' => true,
+                ]
+            ),
         ];
     }
 
@@ -37,6 +46,14 @@ class SvgExtension extends AbstractExtension
             new TwigFunction(
                 'svg',
                 [SvgRuntime::class, 'renderSvg'],
+                [
+                    'is_safe' => ['html'],
+                    // 'needs_environment' => true,
+                ]
+            ),
+            new TwigFunction(
+                'fa',
+                [FontAwesomeRuntime::class, 'renderHtmlTag'],
                 [
                     'is_safe' => ['html'],
                     // 'needs_environment' => true,

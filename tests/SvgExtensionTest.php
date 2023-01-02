@@ -12,6 +12,8 @@
 namespace Ocubom\Twig\Extension\Tests;
 
 use Ocubom\Twig\Extension\Svg\Finder;
+use Ocubom\Twig\Extension\Svg\Library\FontAwesome\Finder as FaFinder;
+use Ocubom\Twig\Extension\Svg\Library\FontAwesomeRuntime;
 use Ocubom\Twig\Extension\SvgExtension;
 use Ocubom\Twig\Extension\SvgRuntime;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
@@ -33,11 +35,18 @@ class SvgExtensionTest extends IntegrationTestCase
 
     public function getRuntimeLoaders(): array
     {
+        $finder = new Finder(
+            'tests/Fixtures/Resources/'
+        );
+
         return [
             new FactoryRuntimeLoader([
-                SvgRuntime::class => function () {
-                    return new SvgRuntime(
-                        new Finder('tests/Fixtures/Resources/')
+                SvgRuntime::class => function () use ($finder) {
+                    return new SvgRuntime($finder);
+                },
+                FontAwesomeRuntime::class => function () use ($finder) {
+                    return new FontAwesomeRuntime(
+                        new FaFinder($finder)
                     );
                 },
             ]),

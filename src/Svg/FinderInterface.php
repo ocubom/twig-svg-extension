@@ -11,7 +11,7 @@
 
 namespace Ocubom\Twig\Extension\Svg;
 
-interface FinderInterface
+interface FinderInterface extends \Stringable
 {
     /**
      * Search for the SVG file that match an ident.
