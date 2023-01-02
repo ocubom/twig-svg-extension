@@ -11,11 +11,6 @@
 
 namespace Ocubom\Twig\Extension\Svg;
 
-/**
- * FinderInterface.
- *
- * @author Oscar Cubo Medina <ocubom@gmail.com>
- */
 interface FinderInterface
 {
     /**

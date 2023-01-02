@@ -105,13 +105,7 @@ class SvgRuntime implements RuntimeExtensionInterface
 
         // Fix EOL lines problem on Windows
         if ('Windows' === \PHP_OS_FAMILY) {
-            // @codeCoverageIgnoreStart
-            return str_replace(
-                \PHP_EOL,
-                "\n",
-                $parser->saveHTML($doc)
-            );
-            // @codeCoverageIgnoreEnd
+            return str_replace(\PHP_EOL, "\n", $parser->saveHTML($doc)); // @codeCoverageIgnore
         }
 
         // Generate output
@@ -128,7 +122,7 @@ class SvgRuntime implements RuntimeExtensionInterface
             'options' => $options,
         ]);
 
-        $svg = Svg::createFromFile($this->finder->resolve($ident), $options);
+        $svg = new Svg($this->finder->resolve($ident), $options);
 
         $this->logger->debug('Render "{ident}" as inlined SVG', [
             'ident' => $ident,

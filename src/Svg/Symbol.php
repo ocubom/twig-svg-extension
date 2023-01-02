@@ -21,7 +21,7 @@ class Symbol implements SvgInterface
 
     public function __construct(\DOMElement $svg, iterable $options = null)
     {
-        $svg = Svg::createFromString(DomHelper::toXml($svg), $options)->getElement();
+        $svg = (new Svg($svg, $options))->getElement();
 
         $this->svg = $this->generateSymbol($svg);
         $this->ref = $this->generateReference($svg);

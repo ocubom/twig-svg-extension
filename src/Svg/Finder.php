@@ -13,11 +13,6 @@ namespace Ocubom\Twig\Extension\Svg;
 
 use Ocubom\Twig\Extension\Svg\Exception\FileNotFoundException;
 
-/**
- * Finder.
- *
- * @author Oscar Cubo Medina <ocubom@gmail.com>
- */
 class Finder implements FinderInterface
 {
     private array $searchPath;

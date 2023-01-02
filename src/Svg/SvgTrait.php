@@ -11,7 +11,7 @@
 
 namespace Ocubom\Twig\Extension\Svg;
 
-use Ocubom\Twig\Extension\Svg\Exception\RuntimeException;
+use Ocubom\Twig\Extension\Svg\Util\DomHelper;
 
 trait SvgTrait
 {
@@ -22,25 +22,20 @@ trait SvgTrait
         return $this->svg;
     }
 
+    /**
+     * @deprecated since ocubom/twig-svg-extension 1.1, use __toString instead
+     *
+     * @codeCoverageIgnore
+     */
     public function render(): string
     {
-        assert($this->svg->ownerDocument instanceof \DOMDocument);
+        trigger_deprecation('ocubom/twig-svg-extension', '1.1', 'Using "%s" is deprecated, use "%s::_toString" instead.', __METHOD__, SvgTrait::class);
 
-        $output = $this->svg->ownerDocument->saveXML($this->svg);
-        if (false === $output) {
-            // @codeCoverageIgnoreStart
-            throw new RuntimeException(sprintf(
-                'Unable to render %s to XML',
-                get_class($this->svg)
-            ));
-            // @codeCoverageIgnoreEnd
-        }
-
-        return $output;
+        return (string) $this;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return $this->render();
+        return DomHelper::toXml($this->svg);
     }
 }

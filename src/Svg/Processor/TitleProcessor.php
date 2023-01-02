@@ -11,7 +11,6 @@
 
 namespace Ocubom\Twig\Extension\Svg\Processor;
 
-use Ocubom\Twig\Extension\Svg\Ident;
 use Ocubom\Twig\Extension\Svg\Util\DomHelper;
 
 class TitleProcessor implements ProcessorInterface
@@ -31,18 +30,11 @@ class TitleProcessor implements ProcessorInterface
         }
 
         // Create title element
-        assert($svg->ownerDocument instanceof \DOMDocument);
-        $title = $svg->insertBefore(
-            $svg->ownerDocument->createElement('title', $options['title']),
-            $svg->firstChild
-        );
-        assert($title instanceof \DOMElement);
+        $title = DomHelper::createElement('title', $options['title'], $svg->firstChild, true);
 
-        // Generate title identifier
-        $id = $options['aria-labelledby'] ?? Ident::generate($title);
         // Reference title identifier with aria attribute
-        $title->setAttribute('id', $id);
-        $svg->setAttribute('aria-labelledby', $id);
+        $title->setAttribute('id', $options['aria-labelledby']);
+        $svg->setAttribute('aria-labelledby', $options['aria-labelledby']);
 
         return $svg;
     }

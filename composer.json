@@ -5,9 +5,7 @@
     "keywords": [
         "twig",
         "twig-extension",
-        "html",
-        "compress",
-        "minify"
+        "svg"
     ],
     "homepage": "https://github.com/ocubom/twig-svg-extension",
     "license": "MIT",
@@ -20,7 +18,10 @@
     "autoload": {
         "psr-4": {
             "Ocubom\\Twig\\Extension\\": "src/"
-        }
+        },
+        "files": [
+            "src/functions.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -34,7 +35,7 @@
         "bentools/iterable-functions": "^2.0",
         "masterminds/html5": "^2.0",
         "ocubom/base-convert": "^2.0",
-        "symfony/css-selector": "^5.4|^6.0",
+        "symfony/deprecation-contracts": "^2.5|^3.2",
         "symfony/options-resolver": "^5.4|^6.0",
         "twig/twig": "^2.7|^3.0"
     },

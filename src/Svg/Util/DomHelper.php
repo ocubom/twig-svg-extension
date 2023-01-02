@@ -22,12 +22,12 @@ final class DomHelper
 {
     /** @var OptionsResolver[] */
     private static array $resolver = [];
-    private static \DOMDocument $doc;
 
     // @codeCoverageIgnoreStart
     private function __construct()
     {
     }
+
     // @codeCoverageIgnoreEnd
 
     public static function createDocument(iterable $options = null): \DOMDocument
@@ -105,10 +105,39 @@ final class DomHelper
         return $clone;
     }
 
+    public static function createComment(
+        string $data = '',
+        \DOMNode $node = null,
+        bool $before = false
+    ): \DOMComment {
+        // Get node document ($node if is a DOMdocument)
+        $doc = $node instanceof \DOMNode
+            ? ($node->ownerDocument ?? $node)
+            : self::createDocument();
+        assert($doc instanceof \DOMDocument);
+
+        $new = $doc->createComment($data);
+        if (null === $node || $doc === $node) {
+            // Append child to the document
+            $new = $doc->appendChild($new);
+        } elseif ($before) {
+            // Insert child before the element
+            assert($node->parentNode instanceof \DOMNode);
+            $new = $node->parentNode->insertBefore($new, $node);
+        } else {
+            // Insert child before the end of the element
+            $new = $node->insertBefore($new);
+        }
+        assert($new instanceof \DOMComment);
+
+        return $new;
+    }
+
     public static function createElement(
         string $name,
         string $value = '',
-        \DOMNode $node = null
+        \DOMNode $node = null,
+        bool $before = false
     ): \DOMElement {
         try {
             // Get node document ($node if is a DOMdocument)
@@ -121,6 +150,10 @@ final class DomHelper
             if (null === $node || $doc === $node) {
                 // Append child to the document
                 $new = $doc->appendChild($new);
+            } elseif ($before) {
+                // Insert child before the element
+                assert($node->parentNode instanceof \DOMNode);
+                $new = $node->parentNode->insertBefore($new, $node);
             } else {
                 // Insert child before the end of the element
                 $new = $node->insertBefore($new);
@@ -178,6 +211,15 @@ final class DomHelper
         $parent->replaceChild($new, $old);
 
         return $new;
+    }
+
+    public static function getElementAttributes(
+        \DOMElement $node
+    ): iterable {
+        /** @var \DOMAttr $attribute */
+        foreach ($node->attributes as $attribute) {
+            yield $attribute->name => $attribute->value;
+        }
     }
 
     public static function toHtml(
