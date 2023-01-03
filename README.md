@@ -103,6 +103,85 @@ $twig->addRuntimeLoader(new class() implements RuntimeLoaderInterface {
 
 The extension defines several filters and functions:
 
+### fuction `fa`
+
+Generates a simple FontAwesome HTML tag:
+
+```twig
+{{ fa('home', {title: "This is a title"}) }}
+```
+
+Will generate:
+
+```html
+<span class="fa-solid fa-house" title="This is a title"></span>
+```
+
+> **Warning**
+>
+> The result may be slightly different.
+> The order of the attributes or their values may vary.
+
+### filter `fontawesome`
+
+This filter looks for FontAwesome tags and replaces them by embedding the corresponding SVG.
+
+> **Warning**
+>
+> The filter must be applied at the level of an HTML document.
+>
+> If the filter is used in a fragment, an exception will be generated.
+
+```twig
+{%- apply fontawesome -%}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+        <span class="fa-solid fa-house" title="This is a title"></span>
+
+    </body>
+</html>
+{%- endapply -%}
+```
+
+> **Note**
+>
+> The `fa` function can be used to generate the tags.
+
+### function `svg`
+
+The svg function embeds an SVG defined in an external file into the template.
+
+```twig
+{{ svg('path/to/file.svg', {option: value}) }}
+```
+
+The path is relative to the search path provided as the first argument when creating the runtime.
+
+```php
+new \Ocubom\Twig\Extension\SvgExtension(
+    new \Ocubom\Twig\Extension\Svg\Finder(
+        'first/search/path',
+        'second/search/path'
+    )
+);
+```
+
+The second argument can be used to add some attributes to the root element:
+
+```twig
+{{ svg('test', {
+    'class': 'custom svg class',
+    'title': 'This is a semantic title',
+}) }}
+```
+
 ### Filter `svg_symbols`
 
 This filter looks for embedded SVGs and converts each of them into a reference to a symbol.
@@ -137,35 +216,7 @@ This filter looks for embedded SVGs and converts each of them into a reference t
 
 > **Note**
 > 
-> The svg function can be used to embed SVG files that will be converted with this filter.
-
-### function `svg`
-
-The svg function embeds an SVG defined in an external file into the template.
-
-```twig
-{{ svg('path/to/file.svg', {option: value}) }}
-```
-
-The path is relative to the search path provided as the first argument when creating the runtime.
-
-```php
-new \Ocubom\Twig\Extension\SvgExtension(
-    new \Ocubom\Twig\Extension\Svg\Finder(
-        'first/search/path',
-        'second/search/path'
-    )
-);
-```
-
-The second argument can be used to add some attributes to the root element:
-
-```twig
-{{ svg('test', {
-    'class': 'custom svg class',
-    'title': 'This is a semantic title',
-}) }}
-```
+> The `svg` function can be used to embed SVG files that will be converted with this filter.
 
 ## Roadmap
 
