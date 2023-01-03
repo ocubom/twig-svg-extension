@@ -12,6 +12,7 @@
 namespace Ocubom\Twig\Extension\Svg\Library\FontAwesome;
 
 use function BenTools\IterableFunctions\iterable_to_array;
+use function Ocubom\Twig\Extension\is_string;
 
 use Ocubom\Twig\Extension\Svg\Exception\ParseException;
 use Ocubom\Twig\Extension\Svg\Library\FontAwesome;
@@ -156,12 +157,42 @@ class Icon extends Svg
 
             // Remove special attributes
             'data-fa-title-id' => new RemoveAttributeProcessor('data-fa-title-id'),
+
+            '' => function (\DOMElement $svg, array $options = []): \DOMElement {
+                // Add FontAwesome fill and opacity values to each path
+                /** @var \DOMElement $path */
+                foreach ($svg->getElementsByTagName('path') as $path) {
+                    $class = array_intersect(
+                        ['fa-primary', 'fa-secondary'],
+                        preg_split('@\s+@Uis', $path->getAttribute('class'))
+                    );
+                    $class = count($class) > 0
+                        ? substr($class[0], 3)
+                        : '';
+
+                    foreach (['fill', 'opacity'] as $name) {
+                        $key = $class.'_'.$name;
+                        if (!empty($options[$key])) {
+                            $path->setAttribute($name, $options[$key]);
+                        } elseif (!empty($options[$name])) {
+                            $path->setAttribute($name, $options[$name]);
+                        }
+                    }
+                }
+
+                return $svg;
+            },
         ]);
     }
 
     public static function configureOptions(OptionsResolver $resolver = null): OptionsResolver
     {
         $resolver = parent::configureOptions($resolver);
+
+        /** @psalm-suppress MissingClosureParamType */
+        $normalizeFloat = function (Options $options, $value): ?float {
+            return is_numeric((string) $value) ? floatval((string) $value) : null;
+        };
 
         $resolver->define('class_default')
             ->default([])
@@ -175,7 +206,8 @@ class Icon extends Svg
 
         $resolver->define('opacity')
             ->default(null)
-            ->allowedTypes('null', 'float')
+            ->allowedTypes('null', 'string', 'float')
+            ->normalize($normalizeFloat)
             ->info('Default opacity color for paths');
 
         $resolver->define('primary_fill')
@@ -185,7 +217,8 @@ class Icon extends Svg
 
         $resolver->define('primary_opacity')
             ->default(null)
-            ->allowedTypes('null', 'float')
+            ->allowedTypes('null', 'string', 'float')
+            ->normalize($normalizeFloat)
             ->info('Default opacity color for primary paths (duotone)');
 
         $resolver->define('secondary_fill')
@@ -195,7 +228,8 @@ class Icon extends Svg
 
         $resolver->define('secondary_opacity')
             ->default(null)
-            ->allowedTypes('null', 'float')
+            ->allowedTypes('null', 'string', 'float')
+            ->normalize($normalizeFloat)
             ->info('Default opacity color for secondary paths (duotone)');
 
         $resolver->define('data-fa-title-id')

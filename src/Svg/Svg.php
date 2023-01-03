@@ -79,6 +79,9 @@ class Svg implements SvgInterface
                 },
                 static::getProcessors()
             );
+        if (isset($processors[''])) {
+            $options[''] = null; // Force execution of global processors.
+        }
 
         // Apply processors on a flesh clone in new DOM document
         $this->svg = DomHelper::cloneElement($node);
@@ -220,12 +223,7 @@ class Svg implements SvgInterface
 
         // Attributes
 
-        /**
-         * @param Options              $options
-         * @param string|string[]|null $value
-         *
-         * @return string[]
-         */
+        /** @psalm-suppress MissingClosureParamType */
         $normalizeClass = function (Options $options, $value): array {
             return array_filter(
                 is_string($value) ? preg_split('@\s+@Uis', $value) : ($value ?? []),
