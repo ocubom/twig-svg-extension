@@ -24,6 +24,7 @@ use Ocubom\Twig\Extension\Svg\Processor\ClassProcessor;
 use Ocubom\Twig\Extension\Svg\Processor\RemoveAttributeProcessor;
 use Ocubom\Twig\Extension\Svg\Processor\TitleProcessor;
 use Ocubom\Twig\Extension\Svg\Util\DomHelper;
+use Ocubom\Twig\Extension\Svg\Util\DomIdent;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -305,7 +306,7 @@ class Svg implements SvgInterface
                 }
 
                 // Generate an identifier based on title contents
-                return $value ?? Ident::generate(DomHelper::createElement('title', $options['title']));
+                return $value ?? DomIdent::generate(DomHelper::createElement('title', $options['title']));
             })
             ->info('Identifies the element that labels this element');
 

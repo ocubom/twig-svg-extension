@@ -12,6 +12,7 @@
 namespace Ocubom\Twig\Extension\Svg;
 
 use Ocubom\Twig\Extension\Svg\Util\DomHelper;
+use Ocubom\Twig\Extension\Svg\Util\DomIdent;
 
 class Symbol implements SvgInterface
 {
@@ -56,7 +57,7 @@ class Symbol implements SvgInterface
         }
 
         // Add the identifier based on node contents
-        $node->setAttribute('id', Ident::generate($node));
+        $node->setAttribute('id', DomIdent::generate($node));
 
         return $node;
     }
