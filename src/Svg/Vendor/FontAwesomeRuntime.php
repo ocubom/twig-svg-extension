@@ -9,26 +9,26 @@
  * file that was distributed with this source code.
  */
 
-namespace Ocubom\Twig\Extension\Svg\Library;
+namespace Ocubom\Twig\Extension\Svg\Vendor;
 
 use function BenTools\IterableFunctions\iterable_to_array;
 
 use Masterminds\HTML5;
 use Ocubom\Twig\Extension\Svg\Exception\RuntimeException;
-use Ocubom\Twig\Extension\Svg\FinderInterface;
-use Ocubom\Twig\Extension\Svg\Library\FontAwesome\Finder;
-use Ocubom\Twig\Extension\Svg\Library\FontAwesome\Icon;
+use Ocubom\Twig\Extension\Svg\Loader\LoaderInterface;
 use Ocubom\Twig\Extension\Svg\Util\DomHelper;
+use Ocubom\Twig\Extension\Svg\Vendor\FontAwesome\Icon;
+use Ocubom\Twig\Extension\Svg\Vendor\FontAwesome\Loader;
 use Twig\Environment;
 use Twig\Extension\RuntimeExtensionInterface;
 
 class FontAwesomeRuntime implements RuntimeExtensionInterface
 {
-    private Finder $finder;
+    private LoaderInterface $loader;
 
-    public function __construct(FinderInterface $finder)
+    public function __construct(Loader $loader)
     {
-        $this->finder = $finder instanceof Finder ? $finder : new Finder($finder);
+        $this->loader = $loader;
     }
 
     public function replaceIcons(Environment $twig, string $html): string
@@ -67,7 +67,7 @@ class FontAwesomeRuntime implements RuntimeExtensionInterface
 
                 $icon = new Icon(
                     // Resolve icon with class …
-                    $this->finder->resolve($node->getAttribute('class')),
+                    $this->loader->resolve($node->getAttribute('class')),
                     // … and clone all its attributes as options
                     iterable_to_array(DomHelper::getElementAttributes($node))
                 );
@@ -91,7 +91,7 @@ class FontAwesomeRuntime implements RuntimeExtensionInterface
 
     public function renderHtmlTag(string $icon, array $options = []): string
     {
-        $icon = new Icon($this->finder->resolve($icon), $options);
+        $icon = new Icon($this->loader->resolve($icon), $options);
 
         return DomHelper::toHtml($icon->getHtmlTag($options));
     }

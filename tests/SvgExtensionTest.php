@@ -11,11 +11,15 @@
 
 namespace Ocubom\Twig\Extension\Tests;
 
-use Ocubom\Twig\Extension\Svg\Finder;
-use Ocubom\Twig\Extension\Svg\Library\FontAwesome\Finder as FaFinder;
-use Ocubom\Twig\Extension\Svg\Library\FontAwesomeRuntime;
+use Ocubom\Twig\Extension\Svg\Loader\DelegatingLoader;
+use Ocubom\Twig\Extension\Svg\Loader\FileLoader;
+use Ocubom\Twig\Extension\Svg\Loader\IconifyLoader;
+use Ocubom\Twig\Extension\Svg\Util\PathCollection;
+use Ocubom\Twig\Extension\Svg\Vendor\FontAwesome\Loader as FaLoader;
+use Ocubom\Twig\Extension\Svg\Vendor\FontAwesomeRuntime;
 use Ocubom\Twig\Extension\SvgExtension;
 use Ocubom\Twig\Extension\SvgRuntime;
+use Symfony\Component\Filesystem\Path;
 use Twig\RuntimeLoader\FactoryRuntimeLoader;
 use Twig\Test\IntegrationTestCase;
 
@@ -35,18 +39,28 @@ class SvgExtensionTest extends IntegrationTestCase
 
     public function getRuntimeLoaders(): array
     {
-        $finder = new Finder(
+        $paths = new PathCollection(
             'tests/Fixtures/Resources/'
         );
 
+        $loader = new DelegatingLoader([
+            new FileLoader($paths),
+            new IconifyLoader(
+                new PathCollection(
+                    \Iconify\IconsJSON\Finder::rootDir()
+                ),
+                Path::join(sys_get_temp_dir(), 'ocubom-svg-extension-test-'.microtime(true))
+            ),
+        ]);
+
         return [
             new FactoryRuntimeLoader([
-                SvgRuntime::class => function () use ($finder) {
-                    return new SvgRuntime($finder);
+                SvgRuntime::class => function () use ($loader) {
+                    return new SvgRuntime($loader);
                 },
-                FontAwesomeRuntime::class => function () use ($finder) {
+                FontAwesomeRuntime::class => function () use ($paths) {
                     return new FontAwesomeRuntime(
-                        new FaFinder($finder)
+                        new FaLoader($paths)
                     );
                 },
             ]),

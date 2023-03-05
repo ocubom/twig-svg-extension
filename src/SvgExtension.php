@@ -11,7 +11,7 @@
 
 namespace Ocubom\Twig\Extension;
 
-use Ocubom\Twig\Extension\Svg\Library\FontAwesomeRuntime;
+use Ocubom\Twig\Extension\Svg\Vendor\FontAwesomeRuntime;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;

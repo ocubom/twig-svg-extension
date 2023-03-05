@@ -1,5 +1,5 @@
 --TEST--
-svg function with options
+svg function with no decorative options
 --TEMPLATE--
 <!DOCTYPE html>
 <html lang="en">

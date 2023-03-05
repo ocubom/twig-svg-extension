@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Ocubom\Twig\Extension\Svg\Library;
+namespace Ocubom\Twig\Extension\Svg\Vendor;
 
 class FontAwesome
 {

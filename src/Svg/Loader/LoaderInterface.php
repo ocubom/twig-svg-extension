@@ -9,16 +9,18 @@
  * file that was distributed with this source code.
  */
 
-namespace Ocubom\Twig\Extension\Svg;
+namespace Ocubom\Twig\Extension\Svg\Loader;
 
-interface FinderInterface extends \Stringable
+use Ocubom\Twig\Extension\Svg\Svg;
+
+interface LoaderInterface
 {
     /**
-     * Search for the SVG file that match an ident.
+     * Search for the SVG that match an ident.
      *
      * @param string $ident The SVG identifier such as the relative path or key
      *
-     * @return \SplFileInfo Full path to the SVG file
+     * @return Svg The SVG
      */
-    public function resolve(string $ident): \SplFileInfo;
+    public function resolve(string $ident, iterable $options = null): Svg;
 }

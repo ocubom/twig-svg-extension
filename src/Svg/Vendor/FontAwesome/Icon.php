@@ -9,17 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Ocubom\Twig\Extension\Svg\Library\FontAwesome;
+namespace Ocubom\Twig\Extension\Svg\Vendor\FontAwesome;
 
 use function BenTools\IterableFunctions\iterable_to_array;
 use function Ocubom\Twig\Extension\is_string;
 
 use Ocubom\Twig\Extension\Svg\Exception\ParseException;
-use Ocubom\Twig\Extension\Svg\Library\FontAwesome;
 use Ocubom\Twig\Extension\Svg\Processor\ClassProcessor;
 use Ocubom\Twig\Extension\Svg\Processor\RemoveAttributeProcessor;
 use Ocubom\Twig\Extension\Svg\Svg;
 use Ocubom\Twig\Extension\Svg\Util\DomHelper;
+use Ocubom\Twig\Extension\Svg\Vendor\FontAwesome;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

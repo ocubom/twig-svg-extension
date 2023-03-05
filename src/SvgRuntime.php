@@ -13,8 +13,7 @@ namespace Ocubom\Twig\Extension;
 
 use Masterminds\HTML5;
 use Ocubom\Twig\Extension\Svg\Exception\RuntimeException;
-use Ocubom\Twig\Extension\Svg\FinderInterface;
-use Ocubom\Twig\Extension\Svg\Svg;
+use Ocubom\Twig\Extension\Svg\Loader\LoaderInterface;
 use Ocubom\Twig\Extension\Svg\Symbol;
 use Ocubom\Twig\Extension\Svg\Util\DomHelper;
 use Psr\Log\LoggerInterface;
@@ -24,12 +23,12 @@ use Twig\Extension\RuntimeExtensionInterface;
 
 class SvgRuntime implements RuntimeExtensionInterface
 {
-    private FinderInterface $finder;
+    private LoaderInterface $loader;
     private LoggerInterface $logger;
 
-    public function __construct(FinderInterface $finder, LoggerInterface $logger = null)
+    public function __construct(LoaderInterface $loader, LoggerInterface $logger = null)
     {
-        $this->finder = $finder;
+        $this->loader = $loader;
         $this->logger = $logger ?? new NullLogger();
     }
 
@@ -122,7 +121,7 @@ class SvgRuntime implements RuntimeExtensionInterface
             'options' => $options,
         ]);
 
-        $svg = new Svg($this->finder->resolve($ident), $options);
+        $svg = $this->loader->resolve($ident, $options);
 
         $this->logger->debug('Render "{ident}" as inlined SVG', [
             'ident' => $ident,

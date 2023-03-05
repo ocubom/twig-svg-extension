@@ -9,22 +9,28 @@
  * file that was distributed with this source code.
  */
 
-namespace Ocubom\Twig\Extension\Svg\Library\FontAwesome;
+namespace Ocubom\Twig\Extension\Svg\Vendor\FontAwesome;
 
-use Ocubom\Twig\Extension\Svg\Exception\FileNotFoundException;
-use Ocubom\Twig\Extension\Svg\FinderInterface;
-use Ocubom\Twig\Extension\Svg\Library\FontAwesome;
+use Ocubom\Twig\Extension\Svg\Exception\LoaderResolveException;
+use Ocubom\Twig\Extension\Svg\Loader\FileLoader;
+use Ocubom\Twig\Extension\Svg\Svg;
+use Ocubom\Twig\Extension\Svg\Util\PathCollection;
+use Ocubom\Twig\Extension\Svg\Vendor\FontAwesome;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
-class Finder implements FinderInterface
+class Loader extends FileLoader
 {
-    private FinderInterface $finder;
+    private PathCollection $searchPath;
+    private LoggerInterface $logger;
 
-    public function __construct(FinderInterface $finder)
+    public function __construct(PathCollection $searchPath, LoggerInterface $logger = null)
     {
-        $this->finder = $finder;
+        parent::__construct($searchPath);
+        $this->logger = $logger ?? new NullLogger();
     }
 
-    public function resolve(string $ident): \SplFileInfo
+    public function resolve(string $ident, iterable $options = null): Svg
     {
         $tokens = preg_split('@\s+@', mb_strtolower($ident));
         $tokens[] = FontAwesome::DEFAULT_PREFIX; // Add default prefix as fallback
@@ -46,23 +52,15 @@ class Finder implements FinderInterface
                 }
 
                 try {
-                    return $this->finder->resolve(sprintf('%s/%s.svg', $style, $name));
-                } catch (FileNotFoundException $err) {
-                    // Just ignore
+                    return new Icon($this->findPath(sprintf('%s/%s', $style, $name)), $options);
+                } catch (LoaderResolveException $err) {
+                    // Just log error to enable debug
+                    $this->logger->warning($err->getMessage());
                 }
             }
         }
 
         // Could not resolve
-        throw new FileNotFoundException(sprintf(
-            'Could not found a FontAwesome icon for "%s" on "%s".',
-            $ident,
-            (string) $this,
-        ));
-    }
-
-    public function __toString(): string
-    {
-        return (string) $this->finder;
+        throw new LoaderResolveException($ident, __CLASS__);
     }
 }
