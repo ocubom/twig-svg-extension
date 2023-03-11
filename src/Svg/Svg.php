@@ -150,42 +150,6 @@ class Svg implements SvgInterface
     }
 
     /**
-     * @param mixed $path The path to the SVG file
-     *
-     * @return static
-     *
-     * @psalm-suppress UnsafeInstantiation
-     *
-     * @deprecated since ocubom/twig-svg-extension 1.1, use Svg constructor with SplInfo argument instead
-     *
-     * @codeCoverageIgnore
-     */
-    public static function createFromFile($path, iterable $options = null): self
-    {
-        trigger_deprecation('ocubom/twig-svg-extension', '1.1', 'Using "%s" is deprecated, use "%s" constructor with SplInfo argument instead.', __METHOD__, Svg::class);
-
-        return new static($path instanceof \SplFileInfo ? $path : new \SplFileInfo((string) $path), $options);
-    }
-
-    /**
-     * @param mixed $contents The SVG contents as an "stringable"
-     *
-     * @return static
-     *
-     * @psalm-suppress UnsafeInstantiation
-     *
-     * @deprecated since ocubom/twig-svg-extension 1.1, use Svg constructor instead
-     *
-     * @codeCoverageIgnore
-     */
-    public static function createFromString($contents, iterable $options = null): self
-    {
-        trigger_deprecation('ocubom/twig-svg-extension', '1.1', 'Using "%s" is deprecated, use "%s" constructor instead.', __METHOD__, Svg::class);
-
-        return new static((string) $contents, $options);
-    }
-
-    /**
      * @return array<string, array<int, callable>|callable>
      */
     protected static function getProcessors(): array

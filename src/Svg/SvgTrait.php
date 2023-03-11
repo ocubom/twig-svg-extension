@@ -22,18 +22,6 @@ trait SvgTrait
         return $this->svg;
     }
 
-    /**
-     * @deprecated since ocubom/twig-svg-extension 1.1, use __toString instead
-     *
-     * @codeCoverageIgnore
-     */
-    public function render(): string
-    {
-        trigger_deprecation('ocubom/twig-svg-extension', '1.1', 'Using "%s" is deprecated, use "%s::_toString" instead.', __METHOD__, SvgTrait::class);
-
-        return (string) $this;
-    }
-
     public function __toString(): string
     {
         return DomHelper::toXml($this->svg);

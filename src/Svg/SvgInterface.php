@@ -17,13 +17,4 @@ interface SvgInterface extends \Stringable
      * Generate a DOM element node for the SVG.
      */
     public function getElement(): \DOMElement;
-
-    /**
-     * Converts SVG into HTML string.
-     *
-     * @deprecated since ocubom/twig-svg-extension 1.1, use __toString instead
-     *
-     * @codeCoverageIgnore
-     */
-    public function render(): string;
 }
