@@ -21,4 +21,5 @@ Twig\Error\RuntimeError: An exception has been thrown during the rendering of a 
 
   1. [Ocubom\Twig\Extension\Svg\Exception\LoaderException] "FileSystemLoader" cannot load SVG for "no-exists.svg" on "tests/Fixtures/Resources".
   2. [Ocubom\Twig\Extension\Svg\Exception\LoaderException] "FileSystemLoader" cannot load SVG for "solid/no-exists.svg" on "tests/Fixtures/Resources" loading SVG for "no-exists.svg" by "FontAwesomeLoader".
+  3. [Ocubom\Twig\Extension\Svg\Exception\LoaderException] "IconifyLoader" cannot load SVG for "no-exists.svg".
 ") in "index.twig" at line 11.

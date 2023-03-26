@@ -93,6 +93,11 @@ $twig->addRuntimeLoader([
             new \Ocubom\Twig\Extension\Svg\Provider\FontAwesome\FontAwesomeLoader($paths)
         );
     },
+    \Ocubom\Twig\Extension\Svg\Provider\Iconify\IconifyRuntime::class => function () use ($paths) {
+        return new \Ocubom\Twig\Extension\Svg\Provider\Iconify\IconifyRuntime(
+            new \Ocubom\Twig\Extension\Svg\Provider\Iconify\IconifyLoader($paths)
+        );
+    },
 ]);
 
 // You can also dynamically create a RuntimeLoader 
@@ -111,6 +116,12 @@ $twig->addRuntimeLoader(new class() implements RuntimeLoaderInterface {
             );
         }
                 
+        if (\Ocubom\Twig\Extension\Svg\Provider\Iconify\IconifyRuntime::class === $class) {
+            return new \Ocubom\Twig\Extension\Svg\Provider\Iconify\IconifyRuntime(
+                new \Ocubom\Twig\Extension\Svg\Provider\Iconify\IconifyLoader($paths)
+            );
+        }
+        
         return null;
     }
 });
@@ -236,6 +247,36 @@ This filter looks for FontAwesome tags and replaces them by embedding the corres
 > **Note**
 >
 > The `fa` function can be used to generate the tags.
+
+### Iconify Provider
+
+#### `iconify` filter
+
+This filter looks for Iconify SVG Framework or Web Component and replaces them by embedding the corresponding SVG.
+
+> **Warning**
+>
+> The filter must be applied at HTML document level.
+>
+> If the filter is used in a fragment, an exception will be generated.
+
+```twig
+{%- apply iconify -%}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+        <span class="mdi:home" title="This is a title"></span>
+
+    </body>
+</html>
+{%- endapply -%}
+```
 
 ## Roadmap
 

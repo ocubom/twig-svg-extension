@@ -12,6 +12,7 @@
 namespace Ocubom\Twig\Extension;
 
 use Ocubom\Twig\Extension\Svg\Provider\FontAwesome\FontAwesomeRuntime;
+use Ocubom\Twig\Extension\Svg\Provider\Iconify\IconifyRuntime;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -46,6 +47,15 @@ class SvgExtension extends AbstractExtension
                 [
                     'is_safe' => ['html'],
                     'needs_environment' => true,
+                ]
+            ),
+            new TwigFilter(
+                'iconify',
+                [IconifyRuntime::class, 'replaceIcons'],
+                [
+                    'is_safe' => ['html'],
+                    'needs_environment' => true,
+                    'is_variadic' => true,
                 ]
             ),
         ];

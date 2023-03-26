@@ -1,0 +1,46 @@
+--TEST--
+iconify filter without SVG framework
+--TEMPLATE--
+{%- apply iconify(svg_framework=null) -%}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+        <!-- Iconify SVG framework -->
+        <span class="iconify" data-icon="mdi:home"></span>
+        <span class="iconify-inline" data-icon="mdi:home"></span>
+
+        <!-- Iconify Icon Web Component -->
+        <iconify-icon icon="mdi:home"></iconify-icon>
+        <Icon icon="mdi:home" />
+
+    </body>
+</html>
+{%- endapply -%}
+--DATA--
+return []
+--CONFIG--
+return ['debug' => true]
+--EXPECT--
+<!DOCTYPE html>
+<html lang="en"><head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+        <!-- Iconify SVG framework -->
+        <span class="iconify" data-icon="mdi:home"></span>
+        <span class="iconify-inline" data-icon="mdi:home"></span>
+
+        <!-- Iconify Icon Web Component -->
+        <!--<iconify-icon icon="mdi:home"></iconify-icon>--><svg width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z" /></svg>
+        <!--<icon icon="mdi:home"></icon>--><svg width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z" /></svg>
+
+    </body>
+</html>

@@ -33,6 +33,7 @@
         "ext-dom": "*",
         "ext-libxml": "*",
         "bentools/iterable-functions": "^2.0",
+        "iconify/json-tools": "^1.0",
         "masterminds/html5": "^2.0",
         "ocubom/base-convert": "^2.0",
         "symfony/deprecation-contracts": "^2.5|^3.2",
@@ -42,6 +43,7 @@
     "require-dev": {
         "enshrined/svg-sanitize": "^0.15",
         "friendsofphp/php-cs-fixer": "^3.4|^3.9",
+        "iconify/json": "*",
         "symfony/phpunit-bridge": "^4.4.9|^5.0.9|^6.0"
     },
     "scripts": {
