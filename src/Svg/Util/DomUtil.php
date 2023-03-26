@@ -11,15 +11,22 @@
 
 namespace Ocubom\Twig\Extension\Svg\Util;
 
-use function BenTools\IterableFunctions\iterable_to_array;
-
 use Ocubom\Twig\Extension\Svg\Exception\RuntimeException;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+use function BenTools\IterableFunctions\iterable_to_array;
+use function Ocubom\Math\base_convert;
+
 /** @internal */
-final class DomHelper
+final class DomUtil
 {
+    private const IDENT_REPLACEMENTS = [
+        '> <' => '><',
+        '" >' => '">',
+        '\' >' => '\'>',
+    ];
+
     /** @var OptionsResolver[] */
     private static array $resolver = [];
 
@@ -29,6 +36,43 @@ final class DomHelper
     }
 
     // @codeCoverageIgnoreEnd
+
+    public static function generateId(
+        \DOMElement $element,
+        iterable $options = null
+    ): string {
+        $resolver = self::$resolver[__METHOD__] = self::$resolver[__METHOD__]
+            ?? self::configureIdentOptions();
+
+        // Resolve options
+        $options = $resolver->resolve(iterable_to_array($options ?? []));
+
+        // Work on an optimized clone
+        $node = DomUtil::cloneElement($element);
+        // Remove identifier
+        $node->removeAttribute('id');
+
+        // Convert to text
+        $text = DomUtil::toXml($node);
+        $text = preg_replace('/\s\s+/', ' ', $text);
+        $text = trim($text);
+        foreach (self::IDENT_REPLACEMENTS as $search => $replace) {
+            $text = str_replace($search, $replace, $text);
+        }
+
+        // Generate a hash
+        $hash = hash($options['algo'], $text);
+
+        // Convert to base and pad to maximum length in new base
+        $hash = str_pad(
+            base_convert($hash, 16, $options['base']),
+            (int) ceil(strlen($hash) * log(16, $options['base'])),
+            '0',
+            \STR_PAD_LEFT
+        );
+
+        return sprintf($options['format'], substr($hash, -$options['length']));
+    }
 
     public static function createDocument(iterable $options = null): \DOMDocument
     {
@@ -351,6 +395,40 @@ final class DomHelper
             ->default(false)
             ->allowedTypes('bool')
             ->info('Whether or not to substitute entities');
+
+        return $resolver;
+    }
+
+    private static function configureIdentOptions(OptionsResolver $resolver = null): OptionsResolver
+    {
+        $resolver = $resolver ?? new OptionsResolver();
+
+        $resolver->define('algo')
+            ->default('sha512')
+            ->allowedTypes('string')
+            ->allowedValues(...hash_algos())
+            ->info('Hash algorithm used to hash values');
+
+        $resolver->define('format')
+            ->default('%s')
+            ->allowedTypes('string')
+            ->allowedValues(function (string $value) {
+                return str_contains($value, '%');
+            })
+            ->info('Native printf format string to generate final output. Must include %s');
+
+        $resolver->define('base')
+            ->default(62)
+            ->allowedTypes('int')
+            ->allowedValues(function (int $value) {
+                return $value >= 2 && $value <= 62;
+            })
+            ->info('The base used to encode value to reduce its length or increase entropy');
+
+        $resolver->define('length')
+            ->default(7)
+            ->allowedTypes('int')
+            ->info('Length of the generated identifier (after base conversion)');
 
         return $resolver;
     }

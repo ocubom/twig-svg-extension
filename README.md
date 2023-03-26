@@ -64,7 +64,7 @@ Or add the dependency manually:
     ```json
     {
         "require": {
-            "ocubom/twig-svg-extension": "^1.0.0"
+            "ocubom/twig-svg-extension": "^2.0.0"
         }
     }
     ```
@@ -82,79 +82,45 @@ Just register the Twig extension:
 ```php
 $twig = new \Twig\Environment();
 $twig->addExtension(new \Ocubom\Twig\Extension\SvgExtension());
-$thig->addRuntimeLoader(use Twig\RuntimeLoader\FactoryRuntimeLoader([
-    \Ocubom\Twig\Extension\SvgExtension::class => function() {
-        return new \Ocubom\Twig\Extension\SvgExtension();
+$twig->addRuntimeLoader([      
+     \Ocubom\Twig\Extension\SvgRuntime::class => function () use ($paths) {
+        return new \Ocubom\Twig\Extension\SvgRuntime(
+            new \Ocubom\Twig\Extension\Svg\Provider\FileSystem\FileSystemLoader($paths)
+        );
     },
-]));
+    \Ocubom\Twig\Extension\Svg\Provider\FontAwesome\FontAwesomeRuntime::class => function () use ($paths) {
+        return new \Ocubom\Twig\Extension\Svg\Provider\FontAwesome\FontAwesomeRuntime(
+            new \Ocubom\Twig\Extension\Svg\Provider\FontAwesome\FontAwesomeLoader($paths)
+        );
+    },
+]);
 
 // You can also dynamically create a RuntimeLoader 
 $twig->addRuntimeLoader(new class() implements RuntimeLoaderInterface {
     public function load($class)
     {
-        if (\Ocubom\Twig\Extension\SvgExtension::class === $class) {
-            return new \Ocubom\Twig\Extension\SvgExtension();
+        if (\Ocubom\Twig\Extension\SvgRuntime::class === $class) {
+            return new \Ocubom\Twig\Extension\SvgRuntime(
+                new \Ocubom\Twig\Extension\Svg\Provider\FileSystem\FileSystemLoader($paths)
+            );
         }
         
+        if (\Ocubom\Twig\Extension\Svg\Provider\FontAwesome\FontAwesomeRuntime::class === $class) {
+            return new \Ocubom\Twig\Extension\Svg\Provider\FontAwesome\FontAwesomeRuntime(
+                new \Ocubom\Twig\Extension\Svg\Provider\FontAwesome\FontAwesomeLoader($paths)
+            );
+        }
+                
         return null;
     }
 });
 ```
 
-The extension defines several filters and functions:
+The extension defines several filters and functions.
 
-### fuction `fa`
+### SVG Extension Core
 
-Generates a simple FontAwesome HTML tag:
-
-```twig
-{{ fa('home', {title: "This is a title"}) }}
-```
-
-Will generate:
-
-```html
-<span class="fa-solid fa-house" title="This is a title"></span>
-```
-
-> **Warning**
->
-> The result may be slightly different.
-> The order of the attributes or their values may vary.
-
-### filter `fontawesome`
-
-This filter looks for FontAwesome tags and replaces them by embedding the corresponding SVG.
-
-> **Warning**
->
-> The filter must be applied at the level of an HTML document.
->
-> If the filter is used in a fragment, an exception will be generated.
-
-```twig
-{%- apply fontawesome -%}
-<!DOCTYPE html>
-<html lang="en">
-
-    <head>
-        <meta charset="utf-8">
-    </head>
-
-    <body>
-
-        <span class="fa-solid fa-house" title="This is a title"></span>
-
-    </body>
-</html>
-{%- endapply -%}
-```
-
-> **Note**
->
-> The `fa` function can be used to generate the tags.
-
-### function `svg`
+#### `svg` function
 
 The svg function embeds an SVG defined in an external file into the template.
 
@@ -165,10 +131,10 @@ The svg function embeds an SVG defined in an external file into the template.
 The path is relative to the search path provided as the first argument when creating the runtime.
 
 ```php
-new \Ocubom\Twig\Extension\SvgExtension(
-    new \Ocubom\Twig\Extension\Svg\Finder(
+new \Ocubom\Twig\Extension\SvgRuntime(
+    new \Ocubom\Twig\Extension\Svg\Provider\FileSystem\FileSystemLoader(
         'first/search/path',
-        'second/search/path'
+        'second/search/path',
     )
 );
 ```
@@ -182,14 +148,14 @@ The second argument can be used to add some attributes to the root element:
 }) }}
 ```
 
-### Filter `svg_symbols`
+#### `svg_symbols` filter
 
 This filter looks for embedded SVGs and converts each of them into a reference to a symbol.
 
 > **Warning**
-> 
-> The filter must be applied at the level of an HTML document.
-> 
+>
+> The filter must be applied at an HTML document level.
+>
 > If the filter is used in a fragment, an exception will be generated.
 
 ```twig
@@ -215,8 +181,61 @@ This filter looks for embedded SVGs and converts each of them into a reference t
 ```
 
 > **Note**
-> 
+>
 > The `svg` function can be used to embed SVG files that will be converted with this filter.
+
+### FontAwesome Provider
+
+#### `fa` function
+
+Generates a simple FontAwesome HTML tag:
+
+```twig
+{{ fa('home', {title: "This is a title"}) }}
+```
+
+Will generate:
+
+```html
+<span class="fa-solid fa-house" title="This is a title"></span>
+```
+
+> **Warning**
+>
+> The result may be slightly different.
+> The order of the attributes or their values may vary.
+
+#### `fontawesome` filter
+
+This filter looks for FontAwesome tags and replaces them by embedding the corresponding SVG.
+
+> **Warning**
+>
+> The filter must be applied at HTML document level.
+>
+> If the filter is used in a fragment, an exception will be generated.
+
+```twig
+{%- apply fontawesome -%}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+        <span class="fa-solid fa-house" title="This is a title"></span>
+
+    </body>
+</html>
+{%- endapply -%}
+```
+
+> **Note**
+>
+> The `fa` function can be used to generate the tags.
 
 ## Roadmap
 

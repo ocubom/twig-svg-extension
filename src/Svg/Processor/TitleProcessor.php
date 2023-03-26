@@ -11,7 +11,7 @@
 
 namespace Ocubom\Twig\Extension\Svg\Processor;
 
-use Ocubom\Twig\Extension\Svg\Util\DomHelper;
+use Ocubom\Twig\Extension\Svg\Util\DomUtil;
 
 class TitleProcessor implements ProcessorInterface
 {
@@ -25,12 +25,12 @@ class TitleProcessor implements ProcessorInterface
         foreach ($svg->getElementsByTagName('title') as $child) {
             // Remove title nodes directly under main element
             if ($child->parentNode === $svg) {
-                DomHelper::removeNode($child);
+                DomUtil::removeNode($child);
             }
         }
 
         // Create title element
-        $title = DomHelper::createElement('title', $options['title'], $svg->firstChild, true);
+        $title = DomUtil::createElement('title', $options['title'], $svg->firstChild, true);
 
         // Reference title identifier with aria attribute
         $title->setAttribute('id', $options['aria-labelledby']);

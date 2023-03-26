@@ -9,25 +9,26 @@
  * file that was distributed with this source code.
  */
 
-namespace Ocubom\Twig\Extension\Svg\Library\FontAwesome;
+namespace Ocubom\Twig\Extension\Svg\Provider\FontAwesome;
 
-use Ocubom\Twig\Extension\Svg\Exception\FileNotFoundException;
-use Ocubom\Twig\Extension\Svg\FinderInterface;
-use Ocubom\Twig\Extension\Svg\Library\FontAwesome;
+use Ocubom\Twig\Extension\Svg\Exception\LoaderException;
+use Ocubom\Twig\Extension\Svg\Provider\FileSystem\FileSystemLoader;
+use Ocubom\Twig\Extension\Svg\Svg;
+use Ocubom\Twig\Extension\Svg\Util\PathCollection;
 
-class Finder implements FinderInterface
+class FontAwesomeLoader extends FileSystemLoader
 {
-    private FinderInterface $finder;
-
-    public function __construct(FinderInterface $finder)
+    public function __construct(PathCollection $searchPath)
     {
-        $this->finder = $finder;
+        parent::__construct($searchPath);
     }
 
-    public function resolve(string $ident): \SplFileInfo
+    public function resolve(string $ident, iterable $options = null): Svg
     {
         $tokens = preg_split('@\s+@', mb_strtolower($ident));
         $tokens[] = FontAwesome::DEFAULT_PREFIX; // Add default prefix as fallback
+
+        $errors = [];
 
         foreach ($tokens as $prefix) {
             $style = FontAwesome::PREFIXES[$prefix] ?? null;
@@ -42,27 +43,23 @@ class Finder implements FinderInterface
 
                 $name = (0 === mb_strpos($name, 'fa-')) ? mb_substr($name, 3) : $name;
                 if (empty($name)) {
-                    continue; // Ignore empty names
+                    continue; // @codeCoverageIgnore
+                }
+
+                $path = sprintf('%s/%s', $style, $name);
+                if (array_key_exists($path, $errors)) {
+                    continue;
                 }
 
                 try {
-                    return $this->finder->resolve(sprintf('%s/%s.svg', $style, $name));
-                } catch (FileNotFoundException $err) {
-                    // Just ignore
+                    return new Icon($this->findPath($path), $options);
+                } catch (LoaderException $err) {
+                    $errors[sprintf('%s/%s', $style, $name)] = $err;
                 }
             }
         }
 
         // Could not resolve
-        throw new FileNotFoundException(sprintf(
-            'Could not found a FontAwesome icon for "%s" on "%s".',
-            $ident,
-            (string) $this,
-        ));
-    }
-
-    public function __toString(): string
-    {
-        return (string) $this->finder;
+        throw new LoaderException($ident, new \ReflectionClass(__CLASS__), null, 0, $errors);
     }
 }

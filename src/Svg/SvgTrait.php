@@ -11,7 +11,7 @@
 
 namespace Ocubom\Twig\Extension\Svg;
 
-use Ocubom\Twig\Extension\Svg\Util\DomHelper;
+use Ocubom\Twig\Extension\Svg\Util\DomUtil;
 
 trait SvgTrait
 {
@@ -24,6 +24,6 @@ trait SvgTrait
 
     public function __toString(): string
     {
-        return DomHelper::toXml($this->svg);
+        return DomUtil::toXml($this->svg);
     }
 }

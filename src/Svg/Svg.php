@@ -11,22 +11,19 @@
 
 namespace Ocubom\Twig\Extension\Svg;
 
-use function BenTools\IterableFunctions\iterable_merge;
-use function BenTools\IterableFunctions\iterable_to_array;
-
 use enshrined\svgSanitize\Sanitizer;
-
-use function Ocubom\Twig\Extension\is_string;
-
 use Ocubom\Twig\Extension\Svg\Exception\FileNotFoundException;
 use Ocubom\Twig\Extension\Svg\Exception\ParseException;
 use Ocubom\Twig\Extension\Svg\Processor\ClassProcessor;
 use Ocubom\Twig\Extension\Svg\Processor\RemoveAttributeProcessor;
 use Ocubom\Twig\Extension\Svg\Processor\TitleProcessor;
-use Ocubom\Twig\Extension\Svg\Util\DomHelper;
-use Ocubom\Twig\Extension\Svg\Util\DomIdent;
+use Ocubom\Twig\Extension\Svg\Util\DomUtil;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
+use function BenTools\IterableFunctions\iterable_merge;
+use function BenTools\IterableFunctions\iterable_to_array;
+use function Ocubom\Twig\Extension\is_string;
 
 class Svg implements SvgInterface
 {
@@ -36,17 +33,17 @@ class Svg implements SvgInterface
     private static array $processors = [];
 
     /**
-     * @param mixed $data The SVG data
+     * @param Svg|\DOMNode|\SplFileInfo|\Stringable|string $data The SVG data
      */
     public function __construct($data, iterable $options = null)
     {
         switch (true) {
             case $data instanceof Svg : // "Copy" constructor
-                $node = $this->constructFromString(DomHelper::toXml($data->svg)); // @codeCoverageIgnore
+                $node = $this->constructFromString(DomUtil::toXml($data->svg)); // @codeCoverageIgnore
                 break; // @codeCoverageIgnore
 
             case $data instanceof \DOMNode :
-                $node = $this->constructFromString(DomHelper::toXml($data));
+                $node = $this->constructFromString(DomUtil::toXml($data));
                 break;
 
             case $data instanceof \SplFileInfo :
@@ -63,7 +60,7 @@ class Svg implements SvgInterface
 
         // Merge options with SVG attributes
         $options = iterable_to_array(iterable_merge(
-            DomHelper::getElementAttributes($node),
+            DomUtil::getElementAttributes($node),
             $options ?? /* @scrutinizer ignore-type */ []
         ));
 
@@ -85,7 +82,7 @@ class Svg implements SvgInterface
         }
 
         // Apply processors on a flesh clone in new DOM document
-        $this->svg = DomHelper::cloneElement($node);
+        $this->svg = DomUtil::cloneElement($node);
         foreach ($options as $key => $val) {
             if (isset($processors[$key])) {
                 // Apply processors
@@ -135,7 +132,7 @@ class Svg implements SvgInterface
         }
 
         // Parse contents into DOM
-        $doc = DomHelper::createDocument();
+        $doc = DomUtil::createDocument();
         if (false === $doc->loadXML($contents)) {
             throw new ParseException(sprintf('Unable to load SVG string "%s".', func_get_arg(0))); // @codeCoverageIgnore
         }
@@ -210,6 +207,16 @@ class Svg implements SvgInterface
             ->normalize($normalizeClass)
             ->info('Classes to block');
 
+        $resolver->define('width')
+            ->default('1em')
+            ->allowedTypes('string')
+            ->info('Width of the element');
+
+        $resolver->define('height')
+            ->default('1em')
+            ->allowedTypes('string')
+            ->info('Height of the element');
+
         $resolver->define('title')
             ->default(null)
             ->allowedTypes('null', 'string')
@@ -270,7 +277,7 @@ class Svg implements SvgInterface
                 }
 
                 // Generate an identifier based on title contents
-                return $value ?? DomIdent::generate(DomHelper::createElement('title', $options['title']));
+                return $value ?? DomUtil::generateId(DomUtil::createElement('title', $options['title']));
             })
             ->info('Identifies the element that labels this element');
 

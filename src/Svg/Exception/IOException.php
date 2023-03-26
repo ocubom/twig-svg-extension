@@ -11,6 +11,6 @@
 
 namespace Ocubom\Twig\Extension\Svg\Exception;
 
-class FileNotFoundException extends IOException
+class IOException extends RuntimeException
 {
 }

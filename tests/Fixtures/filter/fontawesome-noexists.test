@@ -1,0 +1,24 @@
+--TEST--
+fontawesome filter throws exception if no SVG is found
+--TEMPLATE--
+{%- apply fontawesome -%}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+        <span class="fa-solid fa-does-not-exist" fill="red" opacity=".8"></span>
+
+    </body>
+</html>
+
+
+{%- endapply -%}
+--DATA--
+return []
+--EXCEPTION--
+Twig\Error\RuntimeError: An exception has been thrown during the rendering of a template (""FileSystemLoader" cannot load SVG for "solid/does-not-exist" on "tests/Fixtures/Resources" loading SVG for "fa-solid fa-does-not-exist" by "FontAwesomeLoader".") in "index.twig" at line 2.

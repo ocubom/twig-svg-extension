@@ -9,19 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace Ocubom\Twig\Extension\Svg\Library\FontAwesome;
-
-use function BenTools\IterableFunctions\iterable_to_array;
-use function Ocubom\Twig\Extension\is_string;
+namespace Ocubom\Twig\Extension\Svg\Provider\FontAwesome;
 
 use Ocubom\Twig\Extension\Svg\Exception\ParseException;
-use Ocubom\Twig\Extension\Svg\Library\FontAwesome;
 use Ocubom\Twig\Extension\Svg\Processor\ClassProcessor;
 use Ocubom\Twig\Extension\Svg\Processor\RemoveAttributeProcessor;
 use Ocubom\Twig\Extension\Svg\Svg;
-use Ocubom\Twig\Extension\Svg\Util\DomHelper;
+use Ocubom\Twig\Extension\Svg\Util\DomUtil;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+
+use function BenTools\IterableFunctions\iterable_to_array;
 
 class Icon extends Svg
 {
@@ -43,10 +41,6 @@ class Icon extends Svg
 
                 case $data instanceof \SplFileInfo:
                     $this->path = $data;
-                    break;
-
-                case is_string($data):
-                    $this->path = new \SplFileInfo($data);
                     break;
 
                 default:
@@ -112,7 +106,7 @@ class Icon extends Svg
     public function getHtmlTag(iterable $options = null): \DOMElement
     {
         // Create the HTML Tag node
-        $node = DomHelper::createElement(FontAwesome::HTML_TAG);
+        $node = DomUtil::createElement(FontAwesome::HTML_TAG);
         // Copy options as attributes
         foreach ($options ?? [] as $key => $val) {
             if (!empty($val)) {
@@ -158,6 +152,7 @@ class Icon extends Svg
             // Remove special attributes
             'data-fa-title-id' => new RemoveAttributeProcessor('data-fa-title-id'),
 
+            // Global changes
             '' => function (\DOMElement $svg, array $options = []): \DOMElement {
                 // Add FontAwesome fill and opacity values to each path
                 /** @var \DOMElement $path */

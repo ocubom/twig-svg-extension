@@ -25,4 +25,7 @@ svg_symbols on a document fragment throws exception
 --DATA--
 return []
 --EXCEPTION--
-Twig\Error\RuntimeError: An exception has been thrown during the rendering of a template ("Unable to parse HTML: Line 0, Col 0: No DOCTYPE specified.") in "index.twig" at line 11.
+Twig\Error\RuntimeError: An exception has been thrown during the rendering of a template ("Generated 1 exception parsing HTML5:
+
+  1. [Ocubom\Twig\Extension\Svg\Exception\Html5ParseException] No DOCTYPE specified at line 1 and column 1 (near "<svg width="500" height="160">").
+") in "index.twig" at line 11.

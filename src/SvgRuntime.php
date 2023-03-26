@@ -11,12 +11,10 @@
 
 namespace Ocubom\Twig\Extension;
 
-use Masterminds\HTML5;
-use Ocubom\Twig\Extension\Svg\Exception\RuntimeException;
-use Ocubom\Twig\Extension\Svg\FinderInterface;
-use Ocubom\Twig\Extension\Svg\Svg;
+use Ocubom\Twig\Extension\Svg\Loader\LoaderInterface;
 use Ocubom\Twig\Extension\Svg\Symbol;
-use Ocubom\Twig\Extension\Svg\Util\DomHelper;
+use Ocubom\Twig\Extension\Svg\Util\DomUtil;
+use Ocubom\Twig\Extension\Svg\Util\Html5Util;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Twig\Environment;
@@ -24,30 +22,20 @@ use Twig\Extension\RuntimeExtensionInterface;
 
 class SvgRuntime implements RuntimeExtensionInterface
 {
-    private FinderInterface $finder;
+    private LoaderInterface $loader;
+
     private LoggerInterface $logger;
 
-    public function __construct(FinderInterface $finder, LoggerInterface $logger = null)
+    public function __construct(LoaderInterface $loader, LoggerInterface $logger = null)
     {
-        $this->finder = $finder;
+        $this->loader = $loader;
         $this->logger = $logger ?? new NullLogger();
     }
 
-    /**
-     * Convert all SVG into Symbol references and inline symbols.
-     */
     public function convertToSymbols(Environment $twig, string $html): string
     {
-        $parser = new HTML5();
-
-        // Load Document
-        $doc = $parser->loadHTML($html);
-        if ($parser->hasErrors()) {
-            throw new RuntimeException(sprintf(
-                'Unable to parse HTML: %s',
-                implode("\n", $parser->getErrors())
-            ));
-        }
+        // Load HTML
+        $doc = Html5Util::loadHtml($html);
 
         /** @var \DOMElement[] $symbols */
         $symbols = [];
@@ -59,7 +47,7 @@ class SvgRuntime implements RuntimeExtensionInterface
             ]);
 
             // Replace all SVG with use
-            DomHelper::replaceNode($svg, $symbol->getReference());
+            DomUtil::replaceNode($svg, $symbol->getReference());
 
             // Index symbol by id
             $symbols[$symbol->getId()] = $symbol->getElement();
@@ -68,7 +56,7 @@ class SvgRuntime implements RuntimeExtensionInterface
         // Dump all symbols
         if (count($symbols) > 0) {
             // Create symbols container element before the end of body tag or DOM
-            $node = DomHelper::createElement('svg', '', $doc
+            $node = DomUtil::createElement('svg', '', $doc
                 ->getElementsByTagName('body')
                 ->item(0) ?? $doc
             );
@@ -77,52 +65,47 @@ class SvgRuntime implements RuntimeExtensionInterface
             // Add format on debug mode
             if ($twig->isDebug()) {
                 assert($node->previousSibling instanceof \DOMNode);
-                DomHelper::appendChildNode($node->previousSibling, $node);
+                DomUtil::appendChildNode($node->previousSibling, $node);
             }
 
             uksort($symbols, 'strnatcasecmp');
             foreach ($symbols as $symbol) {
-                DomHelper::appendChildNode($symbol, $node);
+                DomUtil::appendChildNode($symbol, $node);
 
                 if ($twig->isDebug()) {
                     assert($node->previousSibling instanceof \DOMNode);
-                    DomHelper::appendChildNode($node->previousSibling, $node);
+                    DomUtil::appendChildNode($node->previousSibling, $node);
                 }
             }
 
             if ($twig->isDebug()) {
                 assert($node->parentNode instanceof \DOMNode);
 
-                DomHelper::appendChildNode(
+                DomUtil::appendChildNode(
                     $doc->createTextNode("\n"),
                     $node->parentNode
                 );
             }
+
+            $this->logger->info('Converted {count} SVG to symbols', [
+                'count' => count($symbols),
+            ]);
+        } elseif ($twig->isDebug()) {
+            $this->logger->debug('No SVG to convert');
         }
 
-        // Normalize final doc
-        $doc->normalize();
-
-        // Fix EOL lines problem on Windows
-        if ('Windows' === \PHP_OS_FAMILY) {
-            return str_replace(\PHP_EOL, "\n", $parser->saveHTML($doc)); // @codeCoverageIgnore
-        }
-
-        // Generate output
-        return $parser->saveHTML($doc);
+        // Generate normalized HTML
+        return Html5Util::toHtml($doc);
     }
 
-    /**
-     * Render an inlined SVG image.
-     */
-    public function renderSvg(string $ident, array $options = []): string
+    public function embedSvg(string $ident, array $options = []): string
     {
         $this->logger->debug('Resolving "{ident}"', [
             'ident' => $ident,
             'options' => $options,
         ]);
 
-        $svg = new Svg($this->finder->resolve($ident), $options);
+        $svg = $this->loader->resolve($ident, $options);
 
         $this->logger->debug('Render "{ident}" as inlined SVG', [
             'ident' => $ident,

@@ -17,4 +17,8 @@ svg function throws exception if no SVG is found
 --DATA--
 return []
 --EXCEPTION--
-Twig\Error\RuntimeError: An exception has been thrown during the rendering of a template ("SVG file for "no-exists.svg" could not be found on "tests/Fixtures/Resources/".") in "index.twig" at line 11.
+Twig\Error\RuntimeError: An exception has been thrown during the rendering of a template (""ChainLoader" cannot load SVG for "no-exists.svg":
+
+  1. [Ocubom\Twig\Extension\Svg\Exception\LoaderException] "FileSystemLoader" cannot load SVG for "no-exists.svg" on "tests/Fixtures/Resources".
+  2. [Ocubom\Twig\Extension\Svg\Exception\LoaderException] "FileSystemLoader" cannot load SVG for "solid/no-exists.svg" on "tests/Fixtures/Resources" loading SVG for "no-exists.svg" by "FontAwesomeLoader".
+") in "index.twig" at line 11.

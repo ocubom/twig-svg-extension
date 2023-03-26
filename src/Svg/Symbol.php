@@ -11,8 +11,7 @@
 
 namespace Ocubom\Twig\Extension\Svg;
 
-use Ocubom\Twig\Extension\Svg\Util\DomHelper;
-use Ocubom\Twig\Extension\Svg\Util\DomIdent;
+use Ocubom\Twig\Extension\Svg\Util\DomUtil;
 
 class Symbol implements SvgInterface
 {
@@ -40,7 +39,7 @@ class Symbol implements SvgInterface
 
     private function generateSymbol(\DOMElement $svg): \DOMElement
     {
-        $node = DomHelper::createElement('symbol');
+        $node = DomUtil::createElement('symbol');
 
         /** @var \DOMAttr $attribute */
         foreach ($svg->attributes as $attribute) {
@@ -52,19 +51,19 @@ class Symbol implements SvgInterface
         /** @var \DOMNode $child */
         foreach ($svg->childNodes as $child) {
             if (!self::isReferenceAllowedNode($child)) {
-                DomHelper::appendChildNode($child, $node);
+                DomUtil::appendChildNode($child, $node);
             }
         }
 
         // Add the identifier based on node contents
-        $node->setAttribute('id', DomIdent::generate($node));
+        $node->setAttribute('id', DomUtil::generateId($node));
 
         return $node;
     }
 
     private function generateReference(\DOMElement $svg): \DOMElement
     {
-        $node = DomHelper::createElement('svg');
+        $node = DomUtil::createElement('svg');
 
         /** @var \DOMAttr $attribute */
         foreach ($svg->attributes as $attribute) {
@@ -76,12 +75,12 @@ class Symbol implements SvgInterface
         /** @var \DOMNode $child */
         foreach ($svg->childNodes as $child) {
             if (self::isReferenceAllowedNode($child)) {
-                DomHelper::appendChildNode($child, $node);
+                DomUtil::appendChildNode($child, $node);
             }
         }
 
-        $use = DomHelper::appendChildElement(
-            DomHelper::createElement('use'),
+        $use = DomUtil::appendChildElement(
+            DomUtil::createElement('use'),
             $node
         );
         $use->setAttribute('xlink:href', '#'.$this->getId());
