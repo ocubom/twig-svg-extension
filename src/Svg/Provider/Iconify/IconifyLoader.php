@@ -43,6 +43,8 @@ class IconifyLoader implements LoaderInterface
         // Parse options
         $options = static::configureOptions()
             ->resolve(iterable_to_array($options ?? /* @scrutinizer ignore-type */ []));
+
+        // Check cache directory path
         $this->cacheDir = Path::canonicalize($options['cache_dir'] ?? '');
         if ('' === $this->cacheDir) {
             $this->cacheDir = null; // @codeCoverageIgnore
@@ -66,7 +68,7 @@ class IconifyLoader implements LoaderInterface
             );
 
             if ($icon) {
-                return new Svg($icon->getSVG(iterable_to_array($options ?? [])));
+                return new Svg($icon->getSVG(iterable_to_array($options ?? []), true));
             }
         }
 
