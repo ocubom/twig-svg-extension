@@ -21,7 +21,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 use function BenTools\IterableFunctions\iterable_to_array;
 
-class Icon extends Svg
+class FontAwesomeSvg extends Svg
 {
     /**
      * Full path to the icon.
@@ -35,7 +35,7 @@ class Icon extends Svg
     {
         try {
             switch (true) {
-                case $data instanceof Icon: // "Copy" constructor
+                case $data instanceof FontAwesomeSvg: // "Copy" constructor
                     $this->path = $data->path;
                     break;
 

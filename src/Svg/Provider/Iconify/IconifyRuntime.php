@@ -54,9 +54,13 @@ class IconifyRuntime implements RuntimeExtensionInterface
                 $ident = $node->hasAttribute('data-icon')
                     ? $node->getAttribute('data-icon')
                     : $node->getAttribute('icon');
+
                 $icon = $this->loader->resolve(
                     $ident, // Resolve icon
-                    DomUtil::getElementAttributes($node) // … and clone all its attributes as options
+                    iterable_to_array(iterable_merge(
+                        DomUtil::getElementAttributes($node), // … and clone all its attributes as options
+                        $options
+                    ))
                 );
 
                 // Replace node

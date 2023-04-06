@@ -91,7 +91,7 @@ class Symbol implements SvgInterface
     private static function isReferenceAllowedAttribute(\DOMAttr $value): bool
     {
         // Block list
-        return !in_array(strtolower($value->name), [
+        return !in_array(mb_strtolower($value->name), [
             'viewbox',
         ]);
     }
@@ -100,7 +100,7 @@ class Symbol implements SvgInterface
     {
         return $node instanceof \DOMElement
             // Allow list
-            && in_array(strtolower($node->tagName), [
+            && in_array(mb_strtolower($node->tagName), [
                 'title',
                 'desc',
             ]);

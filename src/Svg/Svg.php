@@ -14,6 +14,7 @@ namespace Ocubom\Twig\Extension\Svg;
 use enshrined\svgSanitize\Sanitizer;
 use Ocubom\Twig\Extension\Svg\Exception\FileNotFoundException;
 use Ocubom\Twig\Extension\Svg\Exception\ParseException;
+use Ocubom\Twig\Extension\Svg\Processor\AspectRatioProcessor;
 use Ocubom\Twig\Extension\Svg\Processor\ClassProcessor;
 use Ocubom\Twig\Extension\Svg\Processor\RemoveAttributeProcessor;
 use Ocubom\Twig\Extension\Svg\Processor\TitleProcessor;
@@ -77,8 +78,10 @@ class Svg implements SvgInterface
                 },
                 static::getProcessors()
             );
+
+        // Force execution of global processors.
         if (isset($processors[''])) {
-            $options[''] = null; // Force execution of global processors.
+            $options[''] = null;
         }
 
         // Apply processors on a flesh clone in new DOM document
@@ -156,6 +159,9 @@ class Svg implements SvgInterface
             'debug' => new RemoveAttributeProcessor('debug'),
             'minimize' => new RemoveAttributeProcessor('minimize'),
             'class_block' => new RemoveAttributeProcessor('class_block'),
+
+            // Remove default values
+            'preserveAspectRatio' => new AspectRatioProcessor(),
 
             // Custom process
             'class' => new ClassProcessor(),

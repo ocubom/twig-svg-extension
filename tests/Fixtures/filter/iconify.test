@@ -14,6 +14,7 @@ iconify filter
         <!-- Iconify SVG framework -->
         <span class="iconify" data-icon="mdi:home"></span>
         <span class="iconify-inline" data-icon="mdi:home"></span>
+        <span class="iconify-inline" data-icon="mdi:home" preserveAspectRatio="xMidYMid none"></span>
 
         <!-- Iconify Icon Web Component -->
         <iconify-icon icon="mdi:home"></iconify-icon>
@@ -35,12 +36,13 @@ return ['debug' => true]
     <body>
 
         <!-- Iconify SVG framework -->
-        <!--<span class="iconify" data-icon="mdi:home"></span>--><svg class="iconify" data-icon="mdi:home" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z" /></svg>
-        <!--<span class="iconify-inline" data-icon="mdi:home"></span>--><svg class="iconify-inline" data-icon="mdi:home" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z" /></svg>
+        <!--<span class="iconify" data-icon="mdi:home"></span>--><svg class="iconify" width="1em" height="1em" viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z" /></svg>
+        <!--<span class="iconify-inline" data-icon="mdi:home"></span>--><svg class="iconify-inline" width="1em" height="1em" viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z" /></svg>
+        <!--<span class="iconify-inline" data-icon="mdi:home" preserveaspectratio="xMidYMid none"></span>--><svg class="iconify-inline" preserveAspectRatio="xMidYMid none" width="1em" height="1em" viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z" /></svg>
 
         <!-- Iconify Icon Web Component -->
-        <!--<iconify-icon icon="mdi:home"></iconify-icon>--><svg width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z" /></svg>
-        <!--<icon icon="mdi:home"></icon>--><svg width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z" /></svg>
+        <!--<iconify-icon icon="mdi:home"></iconify-icon>--><svg width="1em" height="1em" viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z" /></svg>
+        <!--<icon icon="mdi:home"></icon>--><svg width="1em" height="1em" viewBox="0 0 24 24" focusable="false" role="img" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z" /></svg>
 
     </body>
 </html>

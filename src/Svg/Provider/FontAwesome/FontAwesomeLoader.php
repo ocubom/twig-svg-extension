@@ -52,7 +52,7 @@ class FontAwesomeLoader extends FileSystemLoader
                 }
 
                 try {
-                    return new Icon($this->findPath($path), $options);
+                    return new FontAwesomeSvg($this->findPath($path), $options);
                 } catch (LoaderException $err) {
                     $errors[sprintf('%s/%s', $style, $name)] = $err;
                 }

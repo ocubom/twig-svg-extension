@@ -69,7 +69,7 @@ class FontAwesomeRuntime implements RuntimeExtensionInterface
     public function renderHtmlTag(string $icon, array $options = []): string
     {
         $icon = $this->loader->resolve($icon, $options);
-        assert($icon instanceof Icon);
+        assert($icon instanceof FontAwesomeSvg);
 
         return DomUtil::toHtml($icon->getHtmlTag($options));
     }

@@ -68,7 +68,7 @@ class IconifyLoader implements LoaderInterface
             );
 
             if ($icon) {
-                return new Svg($icon->getSVG(iterable_to_array($options ?? []), true));
+                return new IconifySvg($icon->getSVG(iterable_to_array($options ?? []), true));
             }
         }
 
