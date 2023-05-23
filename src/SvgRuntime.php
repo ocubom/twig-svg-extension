@@ -11,6 +11,7 @@
 
 namespace Ocubom\Twig\Extension;
 
+use Ocubom\Twig\Extension\Svg\Exception\LoaderException;
 use Ocubom\Twig\Extension\Svg\Loader\LoaderInterface;
 use Ocubom\Twig\Extension\Svg\Symbol;
 use Ocubom\Twig\Extension\Svg\Util\DomUtil;
@@ -37,6 +38,9 @@ class SvgRuntime implements RuntimeExtensionInterface
         // Load HTML
         $doc = Html5Util::loadHtml($html);
 
+        /** @var \DOMElement[] $elements */
+        $elements = [];
+
         /** @var \DOMElement[] $symbols */
         $symbols = [];
 
@@ -46,11 +50,12 @@ class SvgRuntime implements RuntimeExtensionInterface
                 'debug' => $twig->isDebug(),
             ]);
 
-            // Replace all SVG with use
+            // Replace the SVG with reference
             DomUtil::replaceNode($svg, $symbol->getReference());
 
             // Index symbol by id
-            $symbols[$symbol->getId()] = $symbol->getElement();
+            $symbols[$symbol->getId()] = $symbols[$symbol->getId()] ?? $symbol->getElement();
+            $elements[] = $svg;
         }
 
         // Dump all symbols
@@ -62,7 +67,7 @@ class SvgRuntime implements RuntimeExtensionInterface
             );
             $node->setAttribute('style', 'display:none');
 
-            // Add format on debug mode
+            // Add format (duplicate previous node space) on debug mode
             if ($twig->isDebug()) {
                 assert($node->previousSibling instanceof \DOMNode);
                 DomUtil::appendChildNode($node->previousSibling, $node);
@@ -85,32 +90,36 @@ class SvgRuntime implements RuntimeExtensionInterface
                     $doc->createTextNode("\n"),
                     $node->parentNode
                 );
-            }
 
-            $this->logger->info('Converted {count} SVG to symbols', [
-                'count' => count($symbols),
-            ]);
+                $this->logger->info('Converted {element_count} SVG elements into {symbol_count} SVG symbols', [
+                    'element_count' => count($elements),
+                    'element_items' => array_map([DomUtil::class, 'toXml'], $elements),
+                    'symbol_count' => count($symbols),
+                    'symbol_items' => array_map([DomUtil::class, 'toXml'], $symbols),
+                ]);
+            }
         } elseif ($twig->isDebug()) {
-            $this->logger->debug('No SVG to convert');
+            $this->logger->debug('No SVG found');
         }
 
         // Generate normalized HTML
         return Html5Util::toHtml($doc);
     }
 
-    public function embedSvg(string $ident, array $options = []): string
+    public function embedSvg(Environment $twig, string $ident, array $options = []): string
     {
-        $this->logger->debug('Resolving "{ident}"', [
-            'ident' => $ident,
-            'options' => $options,
-        ]);
+        try {
+            $svg = $this->loader->resolve($ident, $options);
 
-        $svg = $this->loader->resolve($ident, $options);
+            return (string) $svg;
+        } catch (LoaderException $err) {
+            $this->logger->error($err->getMessage(), ['exception' => $err]);
 
-        $this->logger->debug('Render "{ident}" as inlined SVG', [
-            'ident' => $ident,
-        ]);
+            if ($twig->isDebug()) {
+                return sprintf('<!--{{ svg("%s") }}-->', $ident);
+            }
+        }
 
-        return (string) $svg;
+        return '';
     }
 }

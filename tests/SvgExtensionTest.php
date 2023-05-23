@@ -18,6 +18,7 @@ use Ocubom\Twig\Extension\Svg\Provider\FontAwesome\FontAwesomeLoader;
 use Ocubom\Twig\Extension\Svg\Provider\FontAwesome\FontAwesomeRuntime;
 use Ocubom\Twig\Extension\Svg\Provider\Iconify\IconifyLoader;
 use Ocubom\Twig\Extension\Svg\Provider\Iconify\IconifyRuntime;
+use Ocubom\Twig\Extension\Svg\Svg;
 use Ocubom\Twig\Extension\Svg\Util\PathCollection;
 use Ocubom\Twig\Extension\SvgExtension;
 use Ocubom\Twig\Extension\SvgRuntime;
@@ -27,6 +28,13 @@ use Twig\Test\IntegrationTestCase;
 
 class SvgExtensionTest extends IntegrationTestCase
 {
+    public function testSvgSerialization()
+    {
+        $svg = new Svg(new \SplFileInfo($this->getFixturesDir().'Resources/test.svg'));
+
+        $this->assertEquals((string) $svg, (string) unserialize(serialize($svg)));
+    }
+
     public function getFixturesDir(): string
     {
         return __DIR__.'/Fixtures/';

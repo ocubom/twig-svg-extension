@@ -21,11 +21,12 @@ trait AggregatedExceptionTrait
     /**
      * @param \Throwable|iterable<\Throwable> $previous
      */
-    private function formatMessage(string $message = null, $previous = null): string
+    private function formatMessage(string $message = null, $previous = null, bool $previousMessages = false): string
     {
-        $this->previous = $previous instanceof \Throwable
-            ? [$previous]
-            : iterable_to_array($previous ?? /* @scrutinizer ignore-type */ [], false);
+        $this->previous = $previous instanceof \Throwable ? [$previous] : iterable_to_array(
+            $previous ?? /* @scrutinizer ignore-type */ [],
+            false
+        );
         $count = count($this->previous);
 
         $message = sprintf(
@@ -34,7 +35,7 @@ trait AggregatedExceptionTrait
             1 == $count ? 'exception' : 'exceptions'
         );
 
-        if ($count > 0) {
+        if ($previousMessages && $count > 0) {
             $message .= ":\n\n";
             foreach ($this->previous as $idx => $err) {
                 $message .= sprintf(

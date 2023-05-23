@@ -13,6 +13,7 @@ namespace Ocubom\Twig\Extension\Svg\Provider\Iconify;
 
 use Iconify\JSONTools\Collection;
 use Iconify\JSONTools\SVG as Icon;
+use Ocubom\Twig\Extension\Svg\Exception\JsonException;
 use Ocubom\Twig\Extension\Svg\Exception\LoaderException;
 use Ocubom\Twig\Extension\Svg\Exception\LogicException;
 use Ocubom\Twig\Extension\Svg\Loader\LoaderInterface;
@@ -84,7 +85,7 @@ class IconifyLoader implements LoaderInterface
 
             $collection = new Collection();
             if (!$collection->loadFromFile($path, null, $this->getCacheFile($prefix))) {
-                continue;
+                throw new JsonException(sprintf('Unable to parse "%s" JSON file', $path));
             }
 
             $data = $collection->getIconData($name);

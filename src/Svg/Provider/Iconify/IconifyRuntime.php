@@ -11,9 +11,12 @@
 
 namespace Ocubom\Twig\Extension\Svg\Provider\Iconify;
 
+use Ocubom\Twig\Extension\Svg\Exception\LoaderException;
 use Ocubom\Twig\Extension\Svg\Loader\LoaderInterface;
 use Ocubom\Twig\Extension\Svg\Util\DomUtil;
 use Ocubom\Twig\Extension\Svg\Util\Html5Util;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Twig\Environment;
@@ -26,12 +29,14 @@ use function Ocubom\Twig\Extension\is_string;
 class IconifyRuntime implements RuntimeExtensionInterface
 {
     private LoaderInterface $loader;
-
+    private LoggerInterface $logger;
     private array $options;
 
-    public function __construct(IconifyLoader $loader, iterable $options = null)
+    public function __construct(LoaderInterface $loader, iterable $options = null, LoggerInterface $logger = null)
     {
         $this->loader = $loader;
+        $this->logger = $logger ?? new NullLogger();
+
         $this->options = static::configureOptions()
             ->resolve(iterable_to_array($options ?? /* @scrutinizer ignore-type */ []));
     }
@@ -47,24 +52,30 @@ class IconifyRuntime implements RuntimeExtensionInterface
         /** @var \DOMNode $node */
         foreach (iterable_to_array($this->queryIconify($doc, $options)) as $node) {
             if ($node instanceof \DOMElement) {
-                if ($twig->isDebug()) {
-                    DomUtil::createComment(DomUtil::toHtml($node), $node, true);
+                try {
+                    $ident = $node->hasAttribute('data-icon')
+                        ? $node->getAttribute('data-icon')
+                        : $node->getAttribute('icon');
+
+                    if ($twig->isDebug()) {
+                        DomUtil::createComment(DomUtil::toHtml($node), $node, true);
+                    }
+
+                    $icon = $this->loader->resolve(
+                        $ident, // Resolve icon
+                        iterable_to_array(iterable_merge(
+                            DomUtil::getElementAttributes($node), // … and clone all its attributes as options
+                            $options
+                        ))
+                    );
+
+                    // Replace node
+                    DomUtil::replaceNode($node, $icon->getElement());
+                } catch (LoaderException $err) {
+                    $this->logger->notice($err->getMessage(), ['exception' => $err]);
+
+                    DomUtil::removeNode($node);
                 }
-
-                $ident = $node->hasAttribute('data-icon')
-                    ? $node->getAttribute('data-icon')
-                    : $node->getAttribute('icon');
-
-                $icon = $this->loader->resolve(
-                    $ident, // Resolve icon
-                    iterable_to_array(iterable_merge(
-                        DomUtil::getElementAttributes($node), // … and clone all its attributes as options
-                        $options
-                    ))
-                );
-
-                // Replace node
-                DomUtil::replaceNode($node, $icon->getElement());
             }
         }
 
@@ -109,7 +120,7 @@ class IconifyRuntime implements RuntimeExtensionInterface
         if ($options['web_component']) {
             foreach ($options['web_component'] as $tag) {
                 foreach ($doc->getElementsByTagName($tag) as $node) {
-                    if ($node instanceof \DOMElement && $node->hasAttribute('icon')) {
+                    if ($node->hasAttribute('icon')) {
                         yield $node;
                     }
                 }

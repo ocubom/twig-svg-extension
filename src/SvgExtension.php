@@ -70,6 +70,7 @@ class SvgExtension extends AbstractExtension
                 [SvgRuntime::class, 'embedSvg'],
                 [
                     'is_safe' => ['html'],
+                    'needs_environment' => true,
                 ]
             ),
 

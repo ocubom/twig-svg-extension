@@ -11,6 +11,7 @@
 
 namespace Ocubom\Twig\Extension\Svg;
 
+use Ocubom\Twig\Extension\Svg\Exception\ParseException;
 use Ocubom\Twig\Extension\Svg\Util\DomUtil;
 
 trait SvgTrait
@@ -25,5 +26,24 @@ trait SvgTrait
     public function __toString(): string
     {
         return DomUtil::toXml($this->svg);
+    }
+
+    public function __serialize(): array
+    {
+        return ['svg' => (string) $this];
+    }
+
+    public function __unserialize(array $data): void
+    {
+        $doc = DomUtil::createDocument();
+        if (false === $doc->loadXML($data['svg'])) {
+            throw new ParseException(sprintf('Unable to load SVG string "%s".', func_get_arg(0))); // @codeCoverageIgnore
+        }
+
+        // Get first svg item
+        $node = $doc->getElementsByTagName('svg')->item(0);
+        assert($node instanceof \DOMElement);
+
+        $this->svg = $node;
     }
 }

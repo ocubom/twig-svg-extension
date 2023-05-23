@@ -11,19 +11,26 @@
 
 namespace Ocubom\Twig\Extension\Svg\Provider\FontAwesome;
 
+use Ocubom\Twig\Extension\Svg\Exception\LoaderException;
 use Ocubom\Twig\Extension\Svg\Loader\LoaderInterface;
 use Ocubom\Twig\Extension\Svg\Util\DomUtil;
 use Ocubom\Twig\Extension\Svg\Util\Html5Util;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Twig\Environment;
 use Twig\Extension\RuntimeExtensionInterface;
+
+use function BenTools\IterableFunctions\iterable_to_array;
 
 class FontAwesomeRuntime implements RuntimeExtensionInterface
 {
     private LoaderInterface $loader;
+    private LoggerInterface $logger;
 
-    public function __construct(FontAwesomeLoader $loader)
+    public function __construct(LoaderInterface $loader, LoggerInterface $logger = null)
     {
         $this->loader = $loader;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     public function replaceIcons(Environment $twig, string $html): string
@@ -44,21 +51,29 @@ class FontAwesomeRuntime implements RuntimeExtensionInterface
         /** @var \DOMNode $node */
         foreach (DomUtil::query($query, $doc) as $node) {
             if ($node instanceof \DOMElement) {
-                if ($node->hasAttribute('data-fa-transform')) {
-                    continue; // Ignore icons with Power Transforms (use svg+js)
+                try {
+                    if ($node->hasAttribute('data-fa-transform')) {
+                        continue; // Ignore icons with Power Transforms (use svg+js)
+                    }
+
+                    if ($twig->isDebug()) {
+                        DomUtil::createComment(DomUtil::toHtml($node), $node, true);
+                    }
+
+                    $icon = $this->loader->resolve(
+                        // Resolve icon with class …
+                        $node->getAttribute('class'),
+                        // … and clone all its attributes as options
+                        iterable_to_array(DomUtil::getElementAttributes($node))
+                    );
+
+                    // Replace node
+                    DomUtil::replaceNode($node, $icon->getElement());
+                } catch (LoaderException $err) {
+                    $this->logger->notice($err->getMessage(), ['exception' => $err]);
+
+                    DomUtil::removeNode($node);
                 }
-
-                if ($twig->isDebug()) {
-                    DomUtil::createComment(DomUtil::toHtml($node), $node, true);
-                }
-
-                $icon = $this->loader->resolve(
-                    $node->getAttribute('class'),   // Resolve icon with class …
-                    DomUtil::getElementAttributes($node)      // … and clone all its attributes as options
-                );
-
-                // Replace node
-                DomUtil::replaceNode($node, $icon->getElement());
             }
         }
 

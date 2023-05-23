@@ -19,4 +19,4 @@ iconify filter throws exception if invalid json is found
 --DATA--
 return []
 --EXCEPTION--
-Twig\Error\RuntimeError: An exception has been thrown during the rendering of a template (""IconifyLoader" cannot load SVG for "invalid:json".") in "index.twig" at line 2.
+Twig\Error\RuntimeError: An exception has been thrown during the rendering of a template ("Unable to parse "tests/Fixtures/Resources/json/invalid.json" JSON file") in "index.twig" at line 2.

@@ -23,7 +23,7 @@ class Html5Exception extends RuntimeException
     public function __construct(string $message = null, int $code = 0, $previous = null)
     {
         parent::__construct(
-            $this->formatMessage($message ?? 'Generated %d %s parsing HTML5', $previous),
+            $this->formatMessage($message ?? 'Generated %d %s parsing HTML5', $previous, true),
             $code
         );
     }

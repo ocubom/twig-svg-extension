@@ -144,8 +144,10 @@ The path is relative to the search path provided as the first argument when crea
 ```php
 new \Ocubom\Twig\Extension\SvgRuntime(
     new \Ocubom\Twig\Extension\Svg\Provider\FileSystem\FileSystemLoader(
-        'first/search/path',
-        'second/search/path',
+        new \Ocubom\Twig\Extension\Svg\Util\PathCollection(
+            'first/search/path',
+            'second/search/path',
+        )
     )
 );
 ```
@@ -159,7 +161,7 @@ The second argument can be used to add some attributes to the root element:
 }) }}
 ```
 
-#### `svg_symbols` filter
+#### `svg` (or `svg_symbols`) filter
 
 This filter looks for embedded SVGs and converts each of them into a reference to a symbol.
 
@@ -170,7 +172,7 @@ This filter looks for embedded SVGs and converts each of them into a reference t
 > If the filter is used in a fragment, an exception will be generated.
 
 ```twig
-{%- apply svg_symbols -%}
+{%- apply svg -%}
 <!DOCTYPE html>
 <html lang="en">
 

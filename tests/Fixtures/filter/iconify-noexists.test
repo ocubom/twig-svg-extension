@@ -1,6 +1,7 @@
 --TEST--
-svg function throws exception if no SVG is found
+iconify filter comment tags if no SVG is found
 --TEMPLATE--
+{%- apply iconify -%}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,25 +11,24 @@ svg function throws exception if no SVG is found
 
     <body>
 
-        {{ svg('no-exists.svg') }}
+        <span class="iconify" data-icon="mdi:icon-does-not-exist"></span>
 
     </body>
 </html>
+{%- endapply -%}
 --DATA--
 return []
 --CONFIG--
 return ['debug' => true]
 --EXPECT--
 <!DOCTYPE html>
-<html lang="en">
-
-    <head>
+<html lang="en"><head>
         <meta charset="utf-8">
     </head>
 
     <body>
 
-        <!--{{ svg("no-exists.svg") }}-->
+        <!--<span class="iconify" data-icon="mdi:icon-does-not-exist"></span>-->
 
     </body>
 </html>

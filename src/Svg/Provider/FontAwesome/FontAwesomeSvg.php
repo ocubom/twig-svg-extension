@@ -123,7 +123,7 @@ class FontAwesomeSvg extends Svg
                 $this->getStyleClass(),
                 'fa-'.$this->getName(),
             ],
-            'class_banned' => [
+            'class_block' => [
                 FontAwesome::INLINE_CLASS,
             ],
         ]);
