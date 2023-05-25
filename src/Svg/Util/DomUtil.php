@@ -386,7 +386,7 @@ final class DomUtil
 
         // LibXML specific
         $resolver->define('recover')
-            ->default(false)
+            ->default(true) // Not default
             ->allowedTypes('bool')
             ->info('Enables recovery mode');
 

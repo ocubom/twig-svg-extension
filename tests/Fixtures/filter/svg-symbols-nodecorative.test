@@ -88,15 +88,15 @@ return ['debug' => true]
 
     <body>
 
-        <svg width="391" height="391" title="This is the semantic title for test 1" aria-labelledby="fyslGYb" focusable="false" role="img"><title id="fyslGYb">This is the semantic title for test 1</title><desc>This is the description for test 1</desc><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-labelledby="fyslGYb" focusable="false" role="img"><title id="fyslGYb">This is the semantic title for test 1</title><desc>This is the description for test 1</desc><use xlink:href="#Zt3NmJj" /></svg>
 
-        <svg width="391" height="391" title="This is the semantic title for test 1" aria-labelledby="fyslGYb" focusable="false" role="img"><title id="fyslGYb">This is the semantic title for test 1</title><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-labelledby="fyslGYb" focusable="false" role="img"><title id="fyslGYb">This is the semantic title for test 1</title><use xlink:href="#Zt3NmJj" /></svg>
 
-        <svg width="391" height="391" title="This is the semantic title for test 2" aria-labelledby="QJ17wXv" focusable="false" role="img"><title id="QJ17wXv">This is the semantic title for test 2</title><desc>This is the description for test 2</desc><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-labelledby="QJ17wXv" focusable="false" role="img"><title id="QJ17wXv">This is the semantic title for test 2</title><desc>This is the description for test 2</desc><use xlink:href="#Zt3NmJj" /></svg>
 
-        <svg width="391" height="391" title="This is the semantic title for test 2" aria-labelledby="QJ17wXv" focusable="false" role="img"><title id="QJ17wXv">This is the semantic title for test 2</title><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-labelledby="QJ17wXv" focusable="false" role="img"><title id="QJ17wXv">This is the semantic title for test 2</title><use xlink:href="#Zt3NmJj" /></svg>
 
-        <svg width="391" height="391" title="This is the semantic title for test 2" aria-labelledby="custom-title-id" focusable="false" role="img"><title id="custom-title-id">This is the semantic title for test 2</title><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-labelledby="custom-title-id" focusable="false" role="img"><title id="custom-title-id">This is the semantic title for test 2</title><use xlink:href="#Zt3NmJj" /></svg>
 
     <svg style="display:none">
 

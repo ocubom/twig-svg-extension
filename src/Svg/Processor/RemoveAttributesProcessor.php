@@ -11,21 +11,21 @@
 
 namespace Ocubom\Twig\Extension\Svg\Processor;
 
-class RemoveAttributeProcessor implements ProcessorInterface
+class RemoveAttributesProcessor implements ProcessorInterface
 {
-    private string $name;
+    /** @var string[] */
+    private array $names;
 
-    /**
-     * @param string $name Attribute to delete
-     */
-    public function __construct(string $name)
+    public function __construct(string ...$names)
     {
-        $this->name = $name;
+        $this->names = $names;
     }
 
     public function __invoke(\DOMElement $svg, array $options = []): \DOMElement
     {
-        $svg->removeAttribute($this->name);
+        foreach ($this->names as $name) {
+            $svg->removeAttribute($name);
+        }
 
         return $svg;
     }

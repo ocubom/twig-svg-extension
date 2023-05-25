@@ -55,9 +55,9 @@ return ['debug' => true]
 
     <body>
 
-        <svg width="391" height="391" focusable="false" role="img" aria-hidden="true"><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-hidden="true" focusable="false" role="img"><use xlink:href="#Zt3NmJj" /></svg>
 
-        <svg width="391" height="391" focusable="false" role="img" aria-hidden="true"><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-hidden="true" focusable="false" role="img"><use xlink:href="#Zt3NmJj" /></svg>
 
     <svg style="display:none">
 

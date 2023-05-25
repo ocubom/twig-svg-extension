@@ -36,6 +36,9 @@ class TitleProcessor implements ProcessorInterface
         $title->setAttribute('id', $options['aria-labelledby']);
         $svg->setAttribute('aria-labelledby', $options['aria-labelledby']);
 
+        // Remove unneeded title attribute
+        $svg->removeAttribute('title');
+
         return $svg;
     }
 }

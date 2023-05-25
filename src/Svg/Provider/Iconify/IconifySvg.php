@@ -11,21 +11,19 @@
 
 namespace Ocubom\Twig\Extension\Svg\Provider\Iconify;
 
-use Ocubom\Twig\Extension\Svg\Processor\RemoveAttributeProcessor;
+use Ocubom\Twig\Extension\Svg\Processor\RemoveAttributesProcessor;
 use Ocubom\Twig\Extension\Svg\Svg;
 
 class IconifySvg extends Svg
 {
-    /**
-     * @return array<string, array<int, callable>|callable>
-     *
-     * @psalm-suppress InvalidScope
-     */
     protected static function getProcessors(): array
     {
         return array_merge(parent::getProcessors(), [
             // Options will be ignored & removed
-            'data-icon' => new RemoveAttributeProcessor('data-icon'),
+            new RemoveAttributesProcessor(
+                'data-icon',
+                'icon',
+            ),
         ]);
     }
 }

@@ -14,9 +14,11 @@ namespace Ocubom\Twig\Extension\Svg;
 use enshrined\svgSanitize\Sanitizer;
 use Ocubom\Twig\Extension\Svg\Exception\FileNotFoundException;
 use Ocubom\Twig\Extension\Svg\Exception\ParseException;
-use Ocubom\Twig\Extension\Svg\Processor\AspectRatioProcessor;
+use Ocubom\Twig\Extension\Svg\Processor\ApplyAttributesProcessor;
 use Ocubom\Twig\Extension\Svg\Processor\ClassProcessor;
-use Ocubom\Twig\Extension\Svg\Processor\RemoveAttributeProcessor;
+use Ocubom\Twig\Extension\Svg\Processor\CleanAttributesProcessor;
+use Ocubom\Twig\Extension\Svg\Processor\PreserveAspectRatioProcessor;
+use Ocubom\Twig\Extension\Svg\Processor\RemoveAttributesProcessor;
 use Ocubom\Twig\Extension\Svg\Processor\TitleProcessor;
 use Ocubom\Twig\Extension\Svg\Util\DomUtil;
 use Symfony\Component\OptionsResolver\Options;
@@ -30,7 +32,6 @@ class Svg implements SvgInterface
 {
     use SvgTrait;
 
-    /** @var array<string, array<string, array<int, callable>|callable>> */
     private static array $processors = [];
 
     /**
@@ -72,34 +73,31 @@ class Svg implements SvgInterface
 
         // Retrieve processors for this class with a naive cache
         $processors = self::$processors[static::class]
-            ?? self::$processors[static::class] = array_map(
-                function ($processors): array {
-                    return is_iterable($processors) ? $processors : [$processors];
-                },
-                static::getProcessors()
-            );
+            ?? self::$processors[static::class] = call_user_func(function () {
+                // Get processors array with default priority
+                $processors = array_map(
+                    function ($processor): array {
+                        return is_callable($processor) ? [$processor, 0] : $processor;
+                    },
+                    static::getProcessors()
+                );
 
-        // Force execution of global processors.
-        if (isset($processors[''])) {
-            $options[''] = null;
-        }
+                // Sort by priority
+                usort($processors, function ($x, $y) {
+                    return $x[1] <=> $y[1];
+                });
+
+                return array_column($processors, 0);
+            });
 
         // Apply processors on a flesh clone in new DOM document
-        $this->svg = DomUtil::cloneElement($node);
-        foreach ($options as $key => $val) {
-            if (isset($processors[$key])) {
-                // Apply processors
-                foreach ($processors[$key] as $processor) {
-                    $this->svg = $processor($this->svg, $options);
-                }
-            } elseif (empty($val)) {
-                // Remove empty attributes
-                $this->svg->removeAttribute($key);
-            } else {
-                // Set attribute value
-                $this->svg->setAttribute($key, $val);
-            }
-        }
+        $this->svg = array_reduce(
+            $processors,
+            function (\DOMElement $svg, callable $processor) use ($options): \DOMElement {
+                return $processor($svg, $options);
+            },
+            DomUtil::cloneElement($node)
+        );
     }
 
     protected function constructFromFile(\SplFileInfo $path): \DOMElement
@@ -125,7 +123,7 @@ class Svg implements SvgInterface
     {
         // Sanitize contents (if enshrined\svgSanitize is installed)
         if (class_exists(Sanitizer::class)) {
-            $contents = (new Sanitizer())->sanitize($contents);
+            $contents = (new Sanitizer())->sanitize($contents) ?: $contents;
         }
 
         // Remove all namespaces
@@ -149,26 +147,30 @@ class Svg implements SvgInterface
         throw new ParseException(sprintf('String "%s" does not contain any SVG.', func_get_arg(0))); // @codeCoverageIgnore
     }
 
-    /**
-     * @return array<string, array<int, callable>|callable>
-     */
     protected static function getProcessors(): array
     {
-        return [
-            // Options will be ignored & removed
-            'debug' => new RemoveAttributeProcessor('debug'),
-            'minimize' => new RemoveAttributeProcessor('minimize'),
-            'class_block' => new RemoveAttributeProcessor('class_block'),
+        $options = [
+            'debug',
+            'minimize',
+            'class_block',
+        ];
 
-            // Remove default values
-            'preserveAspectRatio' => new AspectRatioProcessor(),
+        return [
+            // Apply options
+            [new ApplyAttributesProcessor(...$options), -1000],
+
+            // Options will be ignored & removed
+            [new RemoveAttributesProcessor(...$options), 1000],
 
             // Custom process
-            'class' => new ClassProcessor(),
-            'title' => new TitleProcessor(),
+            new ClassProcessor(),
+            new TitleProcessor(),
 
-            // Ignore attributes that depends on other options
-            'aria-labelledby' => [], // generated on TitleProcessor
+            // Remove default values
+            new PreserveAspectRatioProcessor(),
+
+            // Final clean
+            [new CleanAttributesProcessor(), 10000],
         ];
     }
 

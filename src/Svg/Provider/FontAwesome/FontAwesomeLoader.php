@@ -25,18 +25,35 @@ class FontAwesomeLoader extends FileSystemLoader
 
     public function resolve(string $ident, iterable $options = null): Svg
     {
-        $tokens = preg_split('@\s+@', mb_strtolower($ident));
-        $tokens[] = FontAwesome::DEFAULT_PREFIX; // Add default prefix as fallback
-
         $errors = [];
 
-        foreach ($tokens as $prefix) {
+        foreach (self::parseIdent(preg_split('@\s+@', mb_strtolower($ident))) as $path) {
+            if (array_key_exists($path, $errors)) {
+                continue;
+            }
+
+            try {
+                return new FontAwesomeSvg($this->findPath($path), $options);
+            } catch (LoaderException $err) {
+                $errors[$path] = $err;
+            }
+        }
+
+        // Could not resolve
+        throw new LoaderException($ident, new \ReflectionClass(__CLASS__), null, 0, $errors);
+    }
+
+    private static function parseIdent(array $ident): iterable
+    {
+        $ident[] = FontAwesome::DEFAULT_PREFIX; // Add default prefix as fallback
+
+        foreach ($ident as $prefix) {
             $style = FontAwesome::PREFIXES[$prefix] ?? null;
             if (null === $style) {
                 continue; // Ignore tokens that are *not* a known prefix
             }
 
-            foreach ($tokens as $name) {
+            foreach ($ident as $name) {
                 if (isset(FontAwesome::PREFIXES[$name])) {
                     continue; // Ignore tokens that are a known prefix
                 }
@@ -46,20 +63,8 @@ class FontAwesomeLoader extends FileSystemLoader
                     continue; // @codeCoverageIgnore
                 }
 
-                $path = sprintf('%s/%s', $style, $name);
-                if (array_key_exists($path, $errors)) {
-                    continue;
-                }
-
-                try {
-                    return new FontAwesomeSvg($this->findPath($path), $options);
-                } catch (LoaderException $err) {
-                    $errors[sprintf('%s/%s', $style, $name)] = $err;
-                }
+                yield sprintf('%s/%s', $style, $name);
             }
         }
-
-        // Could not resolve
-        throw new LoaderException($ident, new \ReflectionClass(__CLASS__), null, 0, $errors);
     }
 }

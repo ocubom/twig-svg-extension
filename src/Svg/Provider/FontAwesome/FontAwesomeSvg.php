@@ -13,7 +13,7 @@ namespace Ocubom\Twig\Extension\Svg\Provider\FontAwesome;
 
 use Ocubom\Twig\Extension\Svg\Exception\ParseException;
 use Ocubom\Twig\Extension\Svg\Processor\ClassProcessor;
-use Ocubom\Twig\Extension\Svg\Processor\RemoveAttributeProcessor;
+use Ocubom\Twig\Extension\Svg\Processor\RemoveAttributesProcessor;
 use Ocubom\Twig\Extension\Svg\Svg;
 use Ocubom\Twig\Extension\Svg\Util\DomUtil;
 use Symfony\Component\OptionsResolver\Options;
@@ -61,11 +61,10 @@ class FontAwesomeSvg extends Svg
                     $this->getStyleClass(), // Block current classes
                     $this->getStyleClass('5.0'), // Block pre-6.0 classes
                 ]),
+                // Add Font Awesome data-*
+                'data-prefix' => $this->getStyleClass('5.0'),
+                'data-icon' => $this->getName(),
             ]));
-
-            // Add Font Awesome data-*
-            $this->svg->setAttribute('data-prefix', $this->getStyleClass('5.0'));
-            $this->svg->setAttribute('data-icon', $this->getName());
         } catch (ParseException $exc) {
             throw new ParseException(sprintf('Unable to create a FontAwesome Icon from "%s"', get_debug_type($data)), 0, $exc);
         }
@@ -131,29 +130,26 @@ class FontAwesomeSvg extends Svg
         return $node;
     }
 
-    /**
-     * @return array<string, array<int, callable>|callable>
-     *
-     * @psalm-suppress InvalidScope
-     */
     protected static function getProcessors(): array
     {
         return array_merge(parent::getProcessors(), [
-            // Options will be ignored & removed
-            'class_default' => new RemoveAttributeProcessor('class_default'),
-            'class_block' => new RemoveAttributeProcessor('class_block'),
-            'fill' => new RemoveAttributeProcessor('fill'),
-            'opacity' => new RemoveAttributeProcessor('opacity'),
-            'primary_fill' => new RemoveAttributeProcessor('primary_fill'),
-            'primary_opacity' => new RemoveAttributeProcessor('primary_opacity'),
-            'secondary_fill' => new RemoveAttributeProcessor('secondary_fill'),
-            'secondary_opacity' => new RemoveAttributeProcessor('secondary_opacity'),
-
-            // Remove special attributes
-            'data-fa-title-id' => new RemoveAttributeProcessor('data-fa-title-id'),
+            // Remove non-attributes options
+            [new RemoveAttributesProcessor(
+                // Options
+                'class_default',
+                'class_block',
+                'fill',
+                'opacity',
+                'primary_fill',
+                'primary_opacity',
+                'secondary_fill',
+                'secondary_opacity',
+                // Remove special attributes
+                'data-fa-title-id',
+            ), 1000],
 
             // Global changes
-            '' => function (\DOMElement $svg, array $options = []): \DOMElement {
+            function (\DOMElement $svg, array $options = []): \DOMElement {
                 // Add FontAwesome fill and opacity values to each path
                 /** @var \DOMElement $path */
                 foreach ($svg->getElementsByTagName('path') as $path) {

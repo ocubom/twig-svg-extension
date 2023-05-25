@@ -1,0 +1,72 @@
+--TEST--
+svg with custom preserveAspectRatio
+--TEMPLATE--
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+    <!-- Defaults -->
+    
+    {{ svg('mdi:home', {preserveAspectRatio: 'XmidYmid'}) }}
+    
+    {{ svg('mdi:home', {preserveAspectRatio: 'XmidYmid meet'}) }}
+
+    <!-- change to slice -->
+    
+    {{ svg('mdi:home', {preserveAspectRatio: 'XmidYmid slice'}) }}
+
+    <!-- change alignment -->
+    
+    {{ svg('mdi:home', {preserveAspectRatio: 'XmidYmax'}) }}
+    
+    {{ svg('mdi:home', {preserveAspectRatio: 'XmaxYmid meet'}) }}
+    
+    </body>
+</html>
+--DATA--
+return []
+--CONFIG--
+return ['debug' => true]
+--EXPECT--
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+    </head>
+
+    <body>
+
+    <!-- Defaults -->
+    
+    <svg viewBox="0 0 24 24" height="1em" width="1em" aria-hidden="true" focusable="false" role="img">
+  <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z"/>
+</svg>
+    
+    <svg viewBox="0 0 24 24" height="1em" width="1em" aria-hidden="true" focusable="false" role="img">
+  <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z"/>
+</svg>
+
+    <!-- change to slice -->
+    
+    <svg preserveAspectRatio="xMidYMid slice" viewBox="0 0 24 24" height="1em" width="1em" aria-hidden="true" focusable="false" role="img">
+  <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z"/>
+</svg>
+
+    <!-- change alignment -->
+    
+    <svg preserveAspectRatio="xMidYMax" viewBox="0 0 24 24" height="1em" width="1em" aria-hidden="true" focusable="false" role="img">
+  <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z"/>
+</svg>
+    
+    <svg preserveAspectRatio="xMaxYMid" viewBox="0 0 24 24" height="1em" width="1em" aria-hidden="true" focusable="false" role="img">
+  <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3L2 12h3v8h5Z"/>
+</svg>
+    
+    </body>
+</html>

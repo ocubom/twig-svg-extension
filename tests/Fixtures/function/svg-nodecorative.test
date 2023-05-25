@@ -36,7 +36,7 @@ return ['debug' => true]
 
     <body>
 
-<svg width="391" height="391" viewBox="-70.5 -70.5 391 391" class="custom svg duplicated class" aria-labelledby="U33bdqn" focusable="false" role="img">
+<svg class="custom svg duplicated class" viewBox="-70.5 -70.5 391 391" height="391" width="391" aria-labelledby="U33bdqn" focusable="false" role="img">
   <title id="U33bdqn">This is a semantic title</title>
   <rect fill="#fff" stroke="#000" x="-70" y="-70" width="390" height="390"/>
   <g opacity="0.8">
@@ -47,7 +47,7 @@ return ['debug' => true]
   </g>
 </svg>
 
-<svg width="391" height="391" viewBox="-70.5 -70.5 391 391" focusable="true" role="img" aria-hidden="false">
+<svg viewBox="-70.5 -70.5 391 391" height="391" width="391" aria-hidden="false" focusable="true" role="img">
   <rect fill="#fff" stroke="#000" x="-70" y="-70" width="390" height="390"/>
   <g opacity="0.8">
     <rect x="25" y="25" width="200" height="200" fill="lime" stroke-width="4" stroke="pink"/>
