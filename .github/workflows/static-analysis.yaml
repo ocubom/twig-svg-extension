@@ -29,30 +29,32 @@ jobs:
                     tools: vimeo/psalm
                     coverage: none
 
-            -   name: Get Composer cache directory
+            -   name: Get Composer config
                 id: composer-config
                 shell: bash
                 run: |
-                    echo "CACHE_FILES_DIR=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+                    echo "BIN_DIR=$(composer config home)/vendor/bin" >> $GITHUB_OUTPUT
+                    echo "CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
             -   name: Cache composer
                 id: cache-composer
                 uses: actions/cache@v3
                 with:
-                    # Use composer.json for key as composer.lock is not committed.
-                    key: ${{ runner.os }}:composer-${{ hashFiles('**/composer.json') }}
-                    path: ${{ steps.composer-config.outputs.CACHE_FILES_DIR }}
-                    restore-keys: |
-                        ${{ runner.os }}:composer-${{ hashFiles('**/composer.json') }}
-                        ${{ runner.os }}:composer-
+                    key: ${{ runner.os }}:php-8.1:composer
+                    path: |
+                        ${{ steps.composer-config.outputs.BIN_DIR }}
+                        ${{ steps.composer-config.outputs.CACHE_DIR }}
 
-            -   name: Cache vendor directory
+            -   name: Cache vendor
                 id: cache-vendor
                 uses: actions/cache@v3
                 with:
                     # Use composer.json for key as composer.lock is not committed.
                     key: ${{ runner.os }}:php-8.1:vendor-${{ hashFiles('**/composer.json') }}
                     path: vendor
+                    restore-keys: |
+                        ${{ runner.os }}:php-8.1:vendor-${{ hashFiles('**/composer.json') }}
+                        ${{ runner.os }}:php-8.1:vendor-
 
             -   name: Install composer dependencies
                 run: composer install --ansi --no-progress --optimize-autoloader

@@ -1,7 +1,3 @@
-# @see https://help.github.com/en/categories/automating-your-workflow-with-github-actions
-# @see https://github.com/shivammathur/setup-php/blob/master/examples/symfony.yml
-# @see https://about.codecov.io/blog/measuring-php-code-coverage-with-phpunit-and-github-actions/
-
 name: test
 
 on:
@@ -58,30 +54,32 @@ jobs:
                     tools: phpunit-bridge
                     coverage: none
 
-            -   name: Get Composer cache directory
+            -   name: Get Composer config
                 id: composer-config
                 shell: bash
                 run: |
-                    echo "CACHE_FILES_DIR=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+                    echo "BIN_DIR=$(composer config home)/vendor/bin" >> $GITHUB_OUTPUT
+                    echo "CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
             -   name: Cache composer
                 id: cache-composer
                 uses: actions/cache@v3
                 with:
-                    # Use composer.json for key as composer.lock is not committed.
-                    key: ${{ runner.os }}:composer-${{ hashFiles('**/composer.json') }}
-                    path: ${{ steps.composer-config.outputs.CACHE_FILES_DIR }}
-                    restore-keys: |
-                        ${{ runner.os }}:composer-${{ hashFiles('**/composer.json') }}
-                        ${{ runner.os }}:composer-
+                    key: ${{ runner.os }}:php-${{ matrix.php-version }}:composer
+                    path: |
+                        ${{ steps.composer-config.outputs.BIN_DIR }}
+                        ${{ steps.composer-config.outputs.CACHE_DIR }}
 
-            -   name: Cache vendor directory
+            -   name: Cache vendor
                 id: cache-vendor
                 uses: actions/cache@v3
                 with:
                     # Use composer.json for key as composer.lock is not committed.
                     key: ${{ runner.os }}:php-${{ matrix.php-version }}:vendor-${{ hashFiles('**/composer.json') }}
                     path: vendor
+                    restore-keys: |
+                        ${{ runner.os }}:php-${{ matrix.php-version }}:vendor-${{ hashFiles('**/composer.json') }}
+                        ${{ runner.os }}:php-${{ matrix.php-version }}:vendor-
 
             -   name: Install composer dependencies
                 run: composer install --ansi --no-progress --optimize-autoloader
@@ -91,16 +89,17 @@ jobs:
 
     code-coverage:
         name: Code Coverage (PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }})
-        runs-on: ubuntu-latest # Code Coverage only supported on Linux
+        runs-on: ${{ matrix.operating-system }}
+        continue-on-error: ${{ matrix.experimental }}
         needs:
             - test-suite
         strategy:
             fail-fast: false
             matrix:
                 operating-system:
-                    - ubuntu-latest
+                    - ubuntu-latest # Code Coverage only supported on Linux
                 php-version:
-                    - '8.1'
+                    - '8.1'         # Used fastest stable version
                 experimental: [false]
 
         steps:
@@ -134,31 +133,32 @@ jobs:
                     tools: phpunit-bridge
                     coverage: ${{ fromJSON('["pcov", "xdebug"]')[matrix.php-version == '7.1' || (matrix.operating-system == 'macos-latest' && matrix.php-version == '8.2')] }}
 
-
-            -   name: Get Composer cache directory
+            -   name: Get Composer config
                 id: composer-config
                 shell: bash
                 run: |
-                    echo "CACHE_FILES_DIR=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+                    echo "BIN_DIR=$(composer config home)/vendor/bin" >> $GITHUB_OUTPUT
+                    echo "CACHE_DIR=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
             -   name: Cache composer
                 id: cache-composer
                 uses: actions/cache@v3
                 with:
-                    # Use composer.json for key as composer.lock is not committed.
-                    key: ${{ runner.os }}:composer-${{ hashFiles('**/composer.json') }}
-                    path: ${{ steps.composer-config.outputs.CACHE_FILES_DIR }}
-                    restore-keys: |
-                        ${{ runner.os }}:composer-${{ hashFiles('**/composer.json') }}
-                        ${{ runner.os }}:composer-
+                    key: ${{ runner.os }}:php-${{ matrix.php-version }}:composer
+                    path: |
+                        ${{ steps.composer-config.outputs.BIN_DIR }}
+                        ${{ steps.composer-config.outputs.CACHE_DIR }}
 
-            -   name: Cache vendor directory
+            -   name: Cache vendor
                 id: cache-vendor
                 uses: actions/cache@v3
                 with:
                     # Use composer.json for key as composer.lock is not committed.
                     key: ${{ runner.os }}:php-${{ matrix.php-version }}:vendor-${{ hashFiles('**/composer.json') }}
                     path: vendor
+                    restore-keys: |
+                        ${{ runner.os }}:php-${{ matrix.php-version }}:vendor-${{ hashFiles('**/composer.json') }}
+                        ${{ runner.os }}:php-${{ matrix.php-version }}:vendor-
 
             -   name: Install composer dependencies
                 run: composer install --ansi --no-progress --optimize-autoloader
@@ -168,7 +168,5 @@ jobs:
 
             -   name: Upload coverage to Scrutinizer
                 uses: sudo-bot/action-scrutinizer@latest
-                # Do not run this step on forked versions of the main repository (example: contributor forks)
-                #if: github.repository == 'ocubom/dummy-test'
                 with:
                     cli-args: "--format=php-clover coverage.xml --revision=${{ github.event.pull_request.head.sha || github.sha }}"
