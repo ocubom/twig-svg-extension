@@ -88,19 +88,19 @@ return ['debug' => true]
 
     <body>
 
-        <svg height="391" width="391" aria-labelledby="fyslGYb" focusable="false" role="img"><title id="fyslGYb">This is the semantic title for test 1</title><desc>This is the description for test 1</desc><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-labelledby="fyslGYb" focusable="false" role="img"><title id="fyslGYb">This is the semantic title for test 1</title><desc>This is the description for test 1</desc><use xlink:href="#RJ21F1m" /></svg>
 
-        <svg height="391" width="391" aria-labelledby="fyslGYb" focusable="false" role="img"><title id="fyslGYb">This is the semantic title for test 1</title><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-labelledby="fyslGYb" focusable="false" role="img"><title id="fyslGYb">This is the semantic title for test 1</title><use xlink:href="#RJ21F1m" /></svg>
 
-        <svg height="391" width="391" aria-labelledby="QJ17wXv" focusable="false" role="img"><title id="QJ17wXv">This is the semantic title for test 2</title><desc>This is the description for test 2</desc><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-labelledby="QJ17wXv" focusable="false" role="img"><title id="QJ17wXv">This is the semantic title for test 2</title><desc>This is the description for test 2</desc><use xlink:href="#RJ21F1m" /></svg>
 
-        <svg height="391" width="391" aria-labelledby="QJ17wXv" focusable="false" role="img"><title id="QJ17wXv">This is the semantic title for test 2</title><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-labelledby="QJ17wXv" focusable="false" role="img"><title id="QJ17wXv">This is the semantic title for test 2</title><use xlink:href="#RJ21F1m" /></svg>
 
-        <svg height="391" width="391" aria-labelledby="custom-title-id" focusable="false" role="img"><title id="custom-title-id">This is the semantic title for test 2</title><use xlink:href="#Zt3NmJj" /></svg>
+        <svg height="391" width="391" aria-labelledby="custom-title-id" focusable="false" role="img"><title id="custom-title-id">This is the semantic title for test 2</title><use xlink:href="#RJ21F1m" /></svg>
 
     <svg style="display:none">
 
-    <symbol viewBox="-70.5 -70.5 391 391" id="Zt3NmJj"><rect fill="#fff" stroke="#000" x="-70" y="-70" width="390" height="390" /><g opacity="0.8"><rect x="25" y="25" width="200" height="200" fill="lime" stroke-width="4" stroke="pink" /><circle cx="125" cy="125" r="75" fill="orange" /><polyline points="50,150 50,200 200,200 200,100" stroke="red" stroke-width="4" fill="none" /><line x1="50" y1="50" x2="200" y2="200" stroke="blue" stroke-width="4" /></g></symbol>
+    <symbol viewBox="-70.5 -70.5 391 391" id="RJ21F1m"><rect fill="#fff" stroke="#000" x="-70" y="-70" width="390" height="390" /><g opacity="0.8"><rect x="25" y="25" width="200" height="200" fill="lime" stroke-width="4" stroke="pink" /><circle cx="125" cy="125" r="75" fill="orange" /><polyline points="50,150 50,200 200,200 200,100" stroke="red" stroke-width="4" fill="none" /><line x1="50" y1="50" x2="200" y2="200" stroke="blue" stroke-width="4" /></g></symbol>
 
     </svg>
 </body>

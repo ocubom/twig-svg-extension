@@ -111,7 +111,7 @@ class SvgRuntime implements RuntimeExtensionInterface
         try {
             $svg = $this->loader->resolve($ident, $options);
 
-            return (string) $svg;
+            return $svg->toXml(!$twig->isDebug());
         } catch (LoaderException $err) {
             $this->logger->error($err->getMessage(), ['exception' => $err]);
 

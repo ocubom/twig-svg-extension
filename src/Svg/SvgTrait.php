@@ -23,9 +23,19 @@ trait SvgTrait
         return $this->svg;
     }
 
+    public function toHtml(bool $minify = false): string
+    {
+        return DomUtil::toHtml($this->svg, $minify);
+    }
+
+    public function toXml(bool $minify = false): string
+    {
+        return DomUtil::toXml($this->svg, $minify);
+    }
+
     public function __toString(): string
     {
-        return DomUtil::toXml($this->svg);
+        return $this->toXml();
     }
 
     public function __serialize(): array

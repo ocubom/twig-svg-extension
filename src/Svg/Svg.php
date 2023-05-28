@@ -149,27 +149,19 @@ class Svg implements SvgInterface
 
     protected static function getProcessors(): array
     {
-        $options = [
-            'debug',
-            'minimize',
-            'class_block',
-        ];
-
         return [
             // Apply options
-            [new ApplyAttributesProcessor(...$options), -1000],
+            [new ApplyAttributesProcessor(), -1000],
 
             // Options will be ignored & removed
-            [new RemoveAttributesProcessor(...$options), 1000],
+            // [new RemoveAttributesProcessor(), 1000],
 
-            // Custom process
+            // Attributes with custom process
             new ClassProcessor(),
             new TitleProcessor(),
-
-            // Remove default values
             new PreserveAspectRatioProcessor(),
 
-            // Final clean
+            // Final touch
             [new CleanAttributesProcessor(), 10000],
         ];
     }
@@ -178,20 +170,6 @@ class Svg implements SvgInterface
     protected static function configureOptions(OptionsResolver $resolver = null): OptionsResolver
     {
         $resolver = $resolver ?? new OptionsResolver();
-
-        // Options
-
-        $resolver->define('debug')
-            ->default(false)
-            ->allowedTypes('bool')
-            ->info('Enable debug output');
-
-        $resolver->define('minimize')
-            ->default(true)
-            ->allowedTypes('bool')
-            ->info('Minimize output');
-
-        // Attributes
 
         /** @psalm-suppress MissingClosureParamType */
         $normalizeClass = function (Options $options, $value): array {
@@ -202,6 +180,8 @@ class Svg implements SvgInterface
                 }
             );
         };
+
+        // Attributes
 
         $resolver->define('class')
             ->default('')

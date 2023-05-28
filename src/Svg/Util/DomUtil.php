@@ -21,10 +21,9 @@ use function Ocubom\Math\base_convert;
 /** @internal */
 final class DomUtil
 {
-    private const IDENT_REPLACEMENTS = [
-        '> <' => '><',
-        '" >' => '">',
-        '\' >' => '\'>',
+    private const CLEAN_REGEXP = [
+        '@\s+@' => ' ',
+        '@> <@' => '><',
     ];
 
     /** @var OptionsResolver[] */
@@ -52,13 +51,8 @@ final class DomUtil
         // Remove identifier
         $node->removeAttribute('id');
 
-        // Convert to text
-        $text = DomUtil::toXml($node);
-        $text = preg_replace('/\s\s+/', ' ', $text);
-        $text = trim($text);
-        foreach (self::IDENT_REPLACEMENTS as $search => $replace) {
-            $text = str_replace($search, $replace, $text);
-        }
+        // Convert to minified text
+        $text = DomUtil::toXml($node, true);
 
         // Generate a hash
         $hash = hash($options['algo'], $text);
@@ -154,7 +148,7 @@ final class DomUtil
         \DOMNode $node = null,
         bool $before = false
     ): \DOMComment {
-        // Get node document ($node if is a DOMdocument)
+        // Get node document ($node if is a DOMDocument)
         $doc = $node instanceof \DOMNode
             ? ($node->ownerDocument ?? $node)
             : self::createDocument();
@@ -184,7 +178,7 @@ final class DomUtil
         bool $before = false
     ): \DOMElement {
         try {
-            // Get node document ($node if is a DOMdocument)
+            // Get node document ($node if is a DOMDocument)
             $doc = $node instanceof \DOMNode
                 ? ($node->ownerDocument ?? $node)
                 : self::createDocument();
@@ -267,40 +261,62 @@ final class DomUtil
     }
 
     public static function toHtml(
-        \DOMNode $node
+        \DOMNode $node,
+        bool $minimize = false
     ): string {
         assert($node->ownerDocument instanceof \DOMDocument);
 
-        $output = $node->ownerDocument->saveHTML($node);
-        if (false === $output) {
-            // @codeCoverageIgnoreStart
-            throw new RuntimeException(sprintf(
-                'Unable to convert %s to HTML',
-                get_class($node)
-            ));
-            // @codeCoverageIgnoreEnd
-        }
+        $formatOutput = $node->ownerDocument->formatOutput;
+        try {
+            $node->ownerDocument->formatOutput = !$minimize;
 
-        return $output;
+            $text = $node->ownerDocument->saveHTML($node);
+            if (false === $text) {
+                throw new RuntimeException(sprintf('Unable to convert %s to HTML', get_class($node))); // @codeCoverageIgnore
+            }
+
+            if ($minimize) {
+                $text = self::cleanTextOutput($text);
+            }
+
+            return $text;
+        } finally {
+            $node->ownerDocument->formatOutput = $formatOutput;
+        }
     }
 
     public static function toXml(
         \DOMNode $node,
-        int $options = 0
+        bool $minimize = false
     ): string {
         assert($node->ownerDocument instanceof \DOMDocument);
 
-        $output = $node->ownerDocument->saveXML($node, $options);
-        if (false === $output) {
-            // @codeCoverageIgnoreStart
-            throw new RuntimeException(sprintf(
-                'Unable to convert %s to XML',
-                get_class($node)
-            ));
-            // @codeCoverageIgnoreEnd
-        }
+        $formatOutput = $node->ownerDocument->formatOutput;
+        try {
+            $node->ownerDocument->formatOutput = !$minimize;
 
-        return $output;
+            $text = $node->ownerDocument->saveXML($node);
+            if (false === $text) {
+                throw new RuntimeException(sprintf('Unable to convert %s to XML', get_class($node))); // @codeCoverageIgnore
+            }
+
+            if ($minimize) {
+                $text = self::cleanTextOutput($text);
+            }
+
+            return $text;
+        } finally {
+            $node->ownerDocument->formatOutput = $formatOutput;
+        }
+    }
+
+    private static function cleanTextOutput(string $text): string
+    {
+        return preg_replace(
+            array_keys(self::CLEAN_REGEXP),
+            array_values(self::CLEAN_REGEXP),
+            $text
+        );
     }
 
     private static function configureDocumentOptions(OptionsResolver $resolver = null): OptionsResolver
