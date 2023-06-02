@@ -93,9 +93,7 @@ class SvgRuntime implements RuntimeExtensionInterface
 
                 $this->logger->info('Converted {element_count} SVG elements into {symbol_count} SVG symbols', [
                     'element_count' => count($elements),
-                    'element_items' => array_map([DomUtil::class, 'toXml'], $elements),
                     'symbol_count' => count($symbols),
-                    'symbol_items' => array_map([DomUtil::class, 'toXml'], $symbols),
                 ]);
             }
         } elseif ($twig->isDebug()) {
