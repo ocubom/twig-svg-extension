@@ -1,0 +1,95 @@
+name: CI
+
+on:
+    pull_request: ~
+    push:
+        branches: [ "main" ]
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+    cancel-in-progress: true
+
+jobs:
+    static-analysis:
+        name: Static Analysis
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@v4
+
+            -   name: Setup PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: 8.2
+                    ini-values: date.timezone=UTC, memory_limit=-1, max_execution_time=-1
+                    tools: vimeo/psalm
+                    coverage: none
+
+            -   name: Composer install
+                uses: ramsey/composer-install@v2
+
+            -   name: Psalm
+                run: psalm --no-progress || psalm --output-format=github --no-progress
+
+    test-suite:
+        name: Test Suite (PHP ${{ matrix.php-version }} on ${{ matrix.operating-system }})
+        runs-on: ${{ matrix.operating-system }}
+        strategy:
+            fail-fast: false
+            matrix:
+                operating-system:
+                    - macos-latest
+                    - ubuntu-latest
+                    - windows-latest
+                php-version:
+                    - '8.3'
+                    - '8.2'
+                    - '8.1'
+                    - '8.0'
+                    - '7.4'
+                include:
+                    ## Generate coverage report
+                    - php-version: '8.2'
+                      operating-system: ubuntu-latest
+                      coverage: pcov
+
+        steps:
+            -   name: Configure git to avoid issues with line endings
+                if: ${{ runner.os == 'Windows' }}
+                run: git config --global core.autocrlf false
+
+            -   name: Configure GNU tar on windows
+                if: ${{ runner.os == 'Windows' }}
+                shell: cmd
+                run: |
+                    echo "Adding GNU tar to PATH"
+                    echo C:\Program Files\Git\usr\bin>>"%GITHUB_PATH%"
+
+            -   name: Checkout
+                uses: actions/checkout@v4
+                with:
+                    # @see RepositoryIntrospector at scrutinizer-ci/ocular GitHub repository
+                    fetch-depth: ${{ matrix.coverage && 10 || 1 }}
+
+            -   name: Install PHP
+                uses: shivammathur/setup-php@v2
+                with:
+                    php-version: ${{ matrix.php-version }}
+                    ini-values: date.timezone=UTC, memory_limit=-1, max_execution_time=-1
+                    tools: phpunit-bridge
+                    coverage: ${{ matrix.coverage }}
+
+            -   name: Composer install
+                uses: ramsey/composer-install@v2
+                with:
+                    composer-options: ${{ matrix.composer-options }}
+                    dependency-versions: ${{ matrix.dependency-versions }}
+
+            -   name: Run test suite
+                run: simple-phpunit ${{ matrix.coverage && ' --coverage-clover=coverage.xml ' || '' }}
+
+            -   name: Upload coverage to Scrutinizer
+                if: ${{ matrix.coverage }}
+                uses: sudo-bot/action-scrutinizer@latest
+                with:
+                    cli-args: "--format=php-clover coverage.xml --revision=${{ github.event.pull_request.head.sha || github.sha }}"

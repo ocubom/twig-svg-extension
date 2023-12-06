@@ -7,7 +7,7 @@ build:
     environment:
         timezone: 'UTC'
         php:
-            version: '8.1'
+            version: '8.2'
             ini:
                 'date.timezone': 'UTC'
                 memory_limit: -1
