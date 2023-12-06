@@ -37,23 +37,20 @@
         "masterminds/html5": "^2.0",
         "ocubom/base-convert": "^2.0",
         "symfony/deprecation-contracts": "^2.5|^3.2",
-        "symfony/options-resolver": "^5.4|^6.0",
+        "symfony/options-resolver": "^5.4|^6.0|^7.0",
         "twig/twig": "^2.7|^3.0"
     },
     "require-dev": {
-        "enshrined/svg-sanitize": "^0.15",
-        "friendsofphp/php-cs-fixer": "^3.4|^3.9",
+        "enshrined/svg-sanitize": "*",
+        "friendsofphp/php-cs-fixer": "*",
         "iconify/json": "*",
-        "symfony/phpunit-bridge": "^4.4.9|^5.0.9|^6.0"
+        "symfony/phpunit-bridge": "^4.4.9|^5.0.9|^6.0|^7.0"
     },
     "scripts": {
         "fix": "./vendor/bin/php-cs-fixer fix",
         "test": "./vendor/bin/simple-phpunit --exclude-group=legacy"
     },
     "config": {
-        "allow-plugins": {
-            "symfony/flex": true
-        },
         "sort-packages": true
     }
 }
