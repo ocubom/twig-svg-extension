@@ -300,7 +300,7 @@ You can also simply open an issue with the tag "enhancement".
 
 ## Authorship
 
-* Oscar Cubo Medina — [@ocubom](https://twitter.com/ocubom) — https://ocubom.github.io
+* Oscar Cubo Medina — https://ocubom.github.io
 
 See also the list of [contributors][contributors-url] who participated in this project.
 
